@@ -4,11 +4,13 @@ import './Header.css';
 
 interface HeaderProps {
   onLoginClick?: () => void;
+  onSignupClick?: () => void;
   isLoggedIn?: boolean;
   onLogout?: () => void;
+  onLogoClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onLoginClick, isLoggedIn = false, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn = false, onLogout, onLogoClick }) => {
   const handleLinkClick = (section: string) => {
     // 스크롤을 해당 섹션으로 이동
     const element = document.getElementById(section);
@@ -20,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, isLoggedIn = false, onLog
   return (
     <header className="header">
       <div className="header-container">
-        <div className="logo">
+        <div className="logo" onClick={onLogoClick} style={{ cursor: 'pointer' }}>
           <img 
             src="https://via.placeholder.com/40x40/FF6B6B/FFFFFF?text=🐉" 
             alt="드래곤 로고" 
@@ -90,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, isLoggedIn = false, onLog
               <button className="nav-link login-btn" onClick={onLoginClick}>
                 로그인
               </button>
-              <button className="nav-link signup-btn">
+              <button className="nav-link signup-btn" onClick={onSignupClick}>
                 회원가입
               </button>
             </>

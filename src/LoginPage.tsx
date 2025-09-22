@@ -6,9 +6,10 @@ import './LoginPage.css';
 interface LoginPageProps {
   onBackClick?: () => void;
   onLoginSuccess?: () => void;
+  onLogoClick?: () => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess, onLogoClick }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -54,7 +55,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess }) =>
 
   return (
     <div className="login-page">
-      <Header />
+      <Header onLogoClick={onLogoClick} />
       <div className="login-container">
         <div className="login-card">
           <div className="login-header">

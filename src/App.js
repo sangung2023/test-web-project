@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MainPage from './MainPage.tsx';
 import LoginPage from './LoginPage.tsx';
+import SignupPage from './SignupPage.tsx';
 import { isLoggedIn, getCookie } from './utils/cookieUtils.js';
 import './App.css';
 
@@ -17,12 +18,24 @@ function App() {
     setCurrentPage('login');
   };
 
+  const navigateToSignup = () => {
+    setCurrentPage('signup');
+  };
+
   const navigateToMain = () => {
     setCurrentPage('main');
   };
 
   const handleLoginSuccess = () => {
     setIsUserLoggedIn(true);
+    setCurrentPage('main');
+  };
+
+  const handleSignupSuccess = () => {
+    setCurrentPage('login');
+  };
+
+  const handleLogoClick = () => {
     setCurrentPage('main');
   };
 
@@ -39,13 +52,22 @@ function App() {
       {currentPage === 'main' ? (
         <MainPage 
           onLoginClick={navigateToLogin} 
+          onSignupClick={navigateToSignup}
           isLoggedIn={isUserLoggedIn}
           onLogout={handleLogout}
+          onLogoClick={handleLogoClick}
         />
-      ) : (
+      ) : currentPage === 'login' ? (
         <LoginPage 
           onBackClick={navigateToMain} 
           onLoginSuccess={handleLoginSuccess}
+          onLogoClick={handleLogoClick}
+        />
+      ) : (
+        <SignupPage 
+          onBackClick={navigateToMain} 
+          onSignupSuccess={handleSignupSuccess}
+          onLogoClick={handleLogoClick}
         />
       )}
     </div>

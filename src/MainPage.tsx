@@ -4,29 +4,31 @@ import './MainPage.css';
 
 interface MainPageProps {
   onLoginClick?: () => void;
+  onSignupClick?: () => void;
   isLoggedIn?: boolean;
   onLogout?: () => void;
+  onLogoClick?: () => void;
 }
 
-const MainPage: React.FC<MainPageProps> = ({ onLoginClick, isLoggedIn = false, onLogout }) => {
+const MainPage: React.FC<MainPageProps> = ({ onLoginClick, onSignupClick, isLoggedIn = false, onLogout, onLogoClick }) => {
   const teamMembers = [
     {
-      name: '김철수',
+      name: '임성빈',
       role: '프론트엔드 개발',
       image: 'https://via.placeholder.com/150x150/4A90E2/FFFFFF?text=김철수'
     },
     {
-      name: '이영희',
+      name: '박화랑',
       role: '백엔드 개발',
       image: 'https://via.placeholder.com/150x150/7ED321/FFFFFF?text=이영희'
     },
     {
-      name: '박민수',
+      name: '김시현',
       role: 'AI/ML 엔지니어',
       image: 'https://via.placeholder.com/150x150/F5A623/FFFFFF?text=박민수'
     },
     {
-      name: '정수진',
+      name: '문상웅',
       role: 'UI/UX 디자이너',
       image: 'https://via.placeholder.com/150x150/BD10E0/FFFFFF?text=정수진'
     }
@@ -36,8 +38,10 @@ const MainPage: React.FC<MainPageProps> = ({ onLoginClick, isLoggedIn = false, o
     <div className="main-page">
       <Header 
         onLoginClick={onLoginClick} 
+        onSignupClick={onSignupClick}
         isLoggedIn={isLoggedIn}
         onLogout={onLogout}
+        onLogoClick={onLogoClick}
       />
       {/* 배경은 블록 섹션 */}
       <section className="section-block">
