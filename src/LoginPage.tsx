@@ -106,7 +106,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess, onLo
             </button>
             
             <div className="signup-link">
-              <p>계정이 없으신가요? <a href="#">회원가입</a></p>
+              <p>계정이 없으신가요? <button type="button" className="link-button">회원가입</button></p>
             </div>
           </form>
           

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MainPage from './MainPage.tsx';
 import LoginPage from './LoginPage.tsx';
 import SignupPage from './SignupPage.tsx';
-import { isLoggedIn, getCookie } from './utils/cookieUtils.js';
+import { isLoggedIn } from './utils/cookieUtils.js';
 import './App.css';
 
 function App() {

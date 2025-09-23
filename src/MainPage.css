@@ -8,6 +8,7 @@
   background-color: #f5f5f5;
   border-radius: 12px;
   margin-bottom: 30px;
+  margin-top: 40px;
   padding: 40px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -42,8 +43,10 @@
 .background-section {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 40px;
-  margin-top: 20px;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .background-left {
@@ -59,14 +62,32 @@
 }
 
 .background-right {
-  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .background-right .section-title {
-  text-align: left;
-  margin-bottom: 20px;
-  font-size: 3rem;
-  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  position: relative;
+  margin-top: 0;
+}
+
+.background-right .section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: #4A90E2;
+  border-radius: 2px;
 }
 
 .section-description {
@@ -74,6 +95,18 @@
   color: #666;
   line-height: 1.6;
   margin: 0;
+  text-align: center;
+}
+
+.banner-image {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin: 40px auto;
+  display: block;
 }
 
 /* 소개 섹션 */

@@ -150,7 +150,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBackClick, onSignupSuccess, o
             </button>
             
             <div className="login-link">
-              <p>이미 계정이 있으신가요? <a href="#" onClick={(e) => { e.preventDefault(); onBackClick?.(); }}>로그인</a></p>
+              <p>이미 계정이 있으신가요? <button type="button" className="link-button" onClick={() => onBackClick?.()}>로그인</button></p>
             </div>
           </form>
           

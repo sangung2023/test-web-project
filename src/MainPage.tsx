@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from './Header.tsx';
+import bannerImage from './images/banner.png';
 import './MainPage.css';
 
 interface MainPageProps {
@@ -44,25 +45,7 @@ const MainPage: React.FC<MainPageProps> = ({ onLoginClick, onSignupClick, isLogg
         onLogoClick={onLogoClick}
       />
       {/* 배경은 블록 섹션 */}
-      <section className="section-block">
-        <div className="section-content">
-          <div className="background-section">
-            <div className="background-left">
-              <img 
-                src="https://via.placeholder.com/200x200/FF6B6B/FFFFFF?text=🐉" 
-                alt="드래곤 로고" 
-                className="dragon-logo"
-              />
-            </div>
-            <div className="background-right">
-              <h1 className="section-title">One Step</h1>
-              <p className="section-description">
-                One Step은 MCP를 활용하여 Suricata Rule 생성 AI입니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <img src={bannerImage} alt="banner" className="banner-image"/>
 
       {/* 소개 섹션 */}
       <section id="introduction" className="section-block">
