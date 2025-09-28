@@ -1,70 +1,67 @@
-# Getting Started with Create React App
+# Suricata Rule Generator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+MCP를 활용한 Suricata Rule 생성 AI 웹사이트
 
-## Available Scripts
+## 프로젝트 구조
 
-In the project directory, you can run:
+```
+├── frontend/          # React 프론트엔드
+├── backend/           # Express 백엔드 API
+├── package.json       # 루트 package.json
+└── README.md
+```
 
-### `npm start`
+## 개발 환경 설정
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1. 의존성 설치
+```bash
+npm run install:all
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 2. 개발 서버 실행
+```bash
+# 프론트엔드와 백엔드 동시 실행
+npm run dev
 
-### `npm test`
+# 또는 개별 실행
+npm run dev:frontend  # 프론트엔드만
+npm run dev:backend   # 백엔드만
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## API 엔드포인트
 
-### `npm run build`
+- 프론트엔드: http://localhost:3000
+- 백엔드 API: http://localhost:5000
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 배포
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 프론트엔드 빌드
+```bash
+npm run build:frontend
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 백엔드 실행
+```bash
+npm run start:backend
+```
 
-### `npm run eject`
+## 기술 스택
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Frontend
+- React 19.1.1
+- TypeScript
+- CSS3
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Backend
+- Node.js
+- Express.js
+- Prisma ORM
+- JWT Authentication
+- bcrypt
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 주요 기능
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- 사용자 인증 (로그인/회원가입)
+- 게시판 기능
+- 지원 시스템
+- Suricata Rule 생성 AI
