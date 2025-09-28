@@ -14,7 +14,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick })
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    confirmPassword: '',
+    repassword: '',
     name: '',
     birthDate: ''
   });
@@ -32,11 +32,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick })
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // 비밀번호 확인 검증
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.repassword) {
       setErrorMessage('비밀번호가 일치하지 않습니다.');
       return;
     }
@@ -47,14 +47,59 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick })
       return;
     }
 
-    // 회원가입 성공 (실제로는 서버에 데이터 전송)
-    console.log('Signup data:', formData);
-    setErrorMessage('');
-    
-    if (onSignupSuccess) {
-      onSignupSuccess();
+    try {
+      console.log('🚀 회원가입 시도:', formData);
+      
+      const requestBody = {
+        name: formData.name,
+        email: formData.username, // username을 email로 사용
+        password: formData.password,
+        repassword: formData.repassword,
+        birthday: formData.birthDate
+      };
+      
+      console.log('📤 전송할 데이터:', requestBody);
+      
+      // 백엔드 API 호출
+      const response = await fetch('http://localhost:5000/api/users/signup', {
+        method: 'POST',
+        credentials: 'include', // 쿠키 자동 전송
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      console.log('📥 회원가입 응답 상태:', response.status);
+      console.log('📥 응답 헤더:', response.headers);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ HTTP 오류:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ 회원가입 응답:', data);
+
+      if (data.success) {
+        // 회원가입 성공
+        setErrorMessage('');
+        alert('회원가입이 성공적으로 완료되었습니다!');
+        
+        if (onSignupSuccess) {
+          onSignupSuccess();
+        }
+        navigate('/login');
+        window.location.reload();
+      } else {
+        // 회원가입 실패
+        setErrorMessage(data.message || '회원가입에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('회원가입 오류:', error);
+      setErrorMessage('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
     }
-    navigate('/login');
   };
 
   const handleBackToHome = () => {
@@ -103,12 +148,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick })
             </div>
 
             <div className="form-group">
-              <label htmlFor="confirmPassword">비밀번호 확인</label>
+              <label htmlFor="repassword">비밀번호 확인</label>
               <input
                 type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
+                id="repassword"
+                name="repassword"
+                value={formData.repassword}
                 onChange={handleInputChange}
                 placeholder="비밀번호를 다시 입력하세요"
                 required

@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import usersRouter from './src/routes/users.router.js';
 import boardsRouter from './src/routes/boards.router.js';
@@ -12,7 +13,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // 미들웨어 설정
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // 프론트엔드 URL
+  credentials: true // 쿠키 전송 허용
+}));
+app.use(cookieParser()); // 쿠키 파싱 미들웨어
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

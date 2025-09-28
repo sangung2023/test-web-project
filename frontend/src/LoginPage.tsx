@@ -30,25 +30,69 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onLogoClick }) =>
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 로그인 검증
-    if (formData.username === 'ABC' && formData.password === '1234') {
-      // 로그인 성공
-      setCookie('isLoggedIn', 'true', 7); // 7일간 유지
-      setCookie('username', formData.username, 7);
-      setErrorMessage('');
+    // 로딩 상태 표시
+    setErrorMessage('');
+    
+    try {
+      console.log('로그인 시도:', { email: formData.username, password: formData.password });
       
-      if (onLoginSuccess) {
-        onLoginSuccess();
+      // 백엔드 API 호출 (쿠키 자동 전송)
+      const response = await fetch('http://localhost:5000/api/users/login', {
+        method: 'POST',
+        credentials: 'include', // 쿠키 자동 전송
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.username, // username을 email로 사용
+          password: formData.password
+        })
+      });
+
+      console.log('응답 상태:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      // 로그인 성공 후 홈으로 이동하고 페이지 새로고침
-      navigate('/');
-      window.location.reload();
-    } else {
-      // 로그인 실패
-      setErrorMessage('아이디 또는 비밀번호가 올바르지 않습니다.');
+
+      const data = await response.json();
+      console.log('로그인 응답:', data); // 디버깅용 로그
+
+      if (data.success) {
+        // 로그인 성공 - JWT 토큰 저장
+        console.log('저장할 토큰:', data.accessToken); // 디버깅용 로그
+        console.log('저장할 사용자:', data.user); // 디버깅용 로그
+        
+        // 쿠키 저장
+        setCookie('isLoggedIn', 'true', 7);
+        setCookie('username', data.user.name, 7);
+        setCookie('accessToken', data.accessToken, 7);
+        
+        // 저장 확인
+        console.log('쿠키 저장 완료, 확인:', {
+          isLoggedIn: document.cookie.includes('isLoggedIn=true'),
+          username: document.cookie.includes('username='),
+          accessToken: document.cookie.includes('accessToken=')
+        });
+        
+        setErrorMessage('');
+        
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        }
+        // 로그인 성공 후 홈으로 이동하고 페이지 새로고침
+        navigate('/');
+        window.location.reload();
+      } else {
+        // 로그인 실패
+        setErrorMessage(data.message || '로그인에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('로그인 오류:', error);
+      setErrorMessage('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
     }
   };
 

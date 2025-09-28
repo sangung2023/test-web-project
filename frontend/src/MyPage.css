@@ -1,0 +1,239 @@
+.my-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.my-page-container {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 80px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.my-page-card {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+  color: #333;
+}
+
+.my-page-header {
+  margin-bottom: 30px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #4A90E2;
+  color: white;
+  font-size: 3rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.my-page-header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.my-page-header p {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.profile-details {
+  text-align: left;
+  margin-bottom: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 30px;
+}
+
+.profile-details p {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.profile-details strong {
+  color: #4A90E2;
+  min-width: 100px;
+  display: inline-block;
+}
+
+.edit-button, .save-button, .cancel-button, .delete-account-button {
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  margin-right: 10px;
+}
+
+.edit-button:hover, .save-button:hover {
+  background-color: #357ABD;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button {
+  background-color: #ccc;
+}
+
+.cancel-button:hover {
+  background-color: #bbb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.delete-account-button {
+  background-color: #e74c3c;
+}
+
+.delete-account-button:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.account-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.account-actions .edit-button,
+.account-actions .delete-account-button {
+  flex: 1;
+  max-width: 200px;
+  margin-top: 0;
+  margin-right: 0;
+}
+
+.edit-form .form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.edit-form .button-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.edit-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+}
+
+.edit-form input[type="text"],
+.edit-form input[type="date"] {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(74, 144, 226, 0.3);
+  border-top: 3px solid #4A90E2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .my-page-card {
+    padding: 25px;
+  }
+
+  .my-page-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .profile-details p {
+    font-size: 1rem;
+  }
+
+  .edit-button, .save-button, .cancel-button, .delete-account-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    margin-right: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-page-container {
+    padding: 10px;
+  }
+
+  .my-page-card {
+    padding: 20px;
+  }
+
+  .my-page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 2.5rem;
+  }
+
+  .profile-details p {
+    font-size: 0.9rem;
+  }
+
+  .edit-button, .save-button, .cancel-button, .delete-account-button {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .edit-form .button-group {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

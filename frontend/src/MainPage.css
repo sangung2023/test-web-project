@@ -39,6 +39,36 @@
   border-radius: 2px;
 }
 
+/* 프로필 섹션 스타일 */
+.profile-info {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.profile-info p {
+  margin: 10px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.profile-info strong {
+  color: #4A90E2;
+  font-weight: 600;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #c62828;
+  margin-top: 20px;
+  font-weight: 500;
+}
+
 /* 배경은 블록 섹션 */
 .background-section {
   display: flex;

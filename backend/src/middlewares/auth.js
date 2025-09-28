@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import UserService from '../models/User.js';
+import { UserRepository } from '../repositories/UserRepository.js';
 
 // JWT 토큰 생성
 export const generateToken = (userId) => {
@@ -25,9 +25,19 @@ export const verifyToken = (token) => {
 // 인증 미들웨어
 export const authenticateToken = async (req, res, next) => {
   try {
-    // Authorization 헤더에서 토큰 추출
+    let token = null;
+    
+    // 1. Authorization 헤더에서 토큰 추출
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+    
+    // 2. 쿠키에서 토큰 추출 (헤더에 토큰이 없는 경우)
+    if (!token) {
+      token = req.cookies.accessToken;
+      console.log('🍪 쿠키에서 토큰 발견:', token ? '있음' : '없음');
+    }
 
     if (!token) {
       return res.status(401).json({
@@ -46,7 +56,8 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     // 사용자 정보 조회
-    const user = await UserService.findById(decoded.userId);
+    const userRepository = new UserRepository();
+    const user = await userRepository.findById(decoded.userId);
     if (!user) {
       return res.status(403).json({
         success: false,
@@ -75,7 +86,8 @@ export const optionalAuth = async (req, res, next) => {
     if (token) {
       const decoded = verifyToken(token);
       if (decoded) {
-        const user = await UserService.findById(decoded.userId);
+        const userRepository = new UserRepository();
+        const user = await userRepository.findById(decoded.userId);
         if (user) {
           req.user = user;
         }
@@ -153,7 +165,8 @@ export const refreshToken = async (req, res, next) => {
       });
     }
 
-    const user = await UserService.findById(decoded.userId);
+    const userRepository = new UserRepository();
+    const user = await userRepository.findById(decoded.userId);
     if (!user) {
       return res.status(403).json({
         success: false,

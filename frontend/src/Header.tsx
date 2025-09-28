@@ -34,6 +34,13 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
     navigate('/signup');
   };
 
+  const handleMyPageClick = () => {
+    console.log('🔗 마이페이지 버튼 클릭됨');
+    console.log('🔍 현재 로그인 상태:', isLoggedIn);
+    console.log('🍪 현재 쿠키:', document.cookie);
+    navigate('/mypage');
+  };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -95,7 +102,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
               <span className="welcome-text">
                 안녕하세요, {getCookie('username')}님!
               </span>
-              <button className="nav-link mypage-btn">
+              <button className="nav-link mypage-btn" onClick={handleMyPageClick}>
                 마이페이지
               </button>
               <button className="nav-link logout-btn" onClick={onLogout}>

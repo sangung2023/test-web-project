@@ -111,6 +111,19 @@
   box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
 }
 
+.mypage-btn {
+  background-color: #4A90E2;
+  border: 1px solid #4A90E2;
+  margin-right: 10px;
+}
+
+.mypage-btn:hover {
+  background-color: #357ABD;
+  border-color: #357ABD;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
 .welcome-text {
   color: white;
   font-size: 0.85rem;

@@ -47,6 +47,7 @@ const MainPage: React.FC<MainPageProps> = ({ isLoggedIn = false, onLogout, onLog
       {/* 배경은 블록 섹션 */}
       <img src={bannerImage} alt="banner" className="banner-image"/>
 
+
       {/* 소개 섹션 */}
       <section id="introduction" className="section-block">
         <div className="section-content">
