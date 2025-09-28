@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { getCookie } from './utils/cookieUtils.js';
 import './Header.css';
 
@@ -11,6 +12,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn = false, onLogout, onLogoClick }) => {
+  const navigate = useNavigate();
+  
   const handleLinkClick = (section: string) => {
     // 스크롤을 해당 섹션으로 이동
     const element = document.getElementById(section);
@@ -19,10 +22,22 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
     }
   };
 
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleSignupClick = () => {
+    navigate('/signup');
+  };
+
   return (
     <header className="header">
       <div className="header-container">
-        <div className="logo" onClick={onLogoClick} style={{ cursor: 'pointer' }}>
+        <div className="logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
           <img 
             src="https://via.placeholder.com/40x40/FF6B6B/FFFFFF?text=🐉" 
             alt="드래곤 로고" 
@@ -89,10 +104,10 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
             </>
           ) : (
             <>
-              <button className="nav-link login-btn" onClick={onLoginClick}>
+              <button className="nav-link login-btn" onClick={handleLoginClick}>
                 로그인
               </button>
-              <button className="nav-link signup-btn" onClick={onSignupClick}>
+              <button className="nav-link signup-btn" onClick={handleSignupClick}>
                 회원가입
               </button>
             </>

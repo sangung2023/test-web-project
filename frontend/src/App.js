@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import MainPage from './MainPage.tsx';
 import LoginPage from './LoginPage.tsx';
 import SignupPage from './SignupPage.tsx';
@@ -6,7 +7,6 @@ import { isLoggedIn } from './utils/cookieUtils.js';
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('main');
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -14,63 +14,63 @@ function App() {
     setIsUserLoggedIn(isLoggedIn());
   }, []);
 
-  const navigateToLogin = () => {
-    setCurrentPage('login');
-  };
-
-  const navigateToSignup = () => {
-    setCurrentPage('signup');
-  };
-
-  const navigateToMain = () => {
-    setCurrentPage('main');
-  };
-
   const handleLoginSuccess = () => {
     setIsUserLoggedIn(true);
-    setCurrentPage('main');
   };
 
   const handleSignupSuccess = () => {
-    setCurrentPage('login');
+    // 회원가입 성공 시 로그인 페이지로 리다이렉트는 컴포넌트에서 처리
   };
 
   const handleLogoClick = () => {
-    setCurrentPage('main');
+    // 로고 클릭 시 홈으로 이동 (React Router가 처리)
   };
 
   const handleLogout = () => {
     // 쿠키 삭제
     document.cookie = 'isLoggedIn=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
     document.cookie = 'username=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
-    // 페이지 새로고침
+    setIsUserLoggedIn(false);
+    // 로그아웃 후 페이지 새로고침
     window.location.reload();
   };
 
   return (
-    <div className="App">
-      {currentPage === 'main' ? (
-        <MainPage 
-          onLoginClick={navigateToLogin} 
-          onSignupClick={navigateToSignup}
-          isLoggedIn={isUserLoggedIn}
-          onLogout={handleLogout}
-          onLogoClick={handleLogoClick}
-        />
-      ) : currentPage === 'login' ? (
-        <LoginPage 
-          onBackClick={navigateToMain} 
-          onLoginSuccess={handleLoginSuccess}
-          onLogoClick={handleLogoClick}
-        />
-      ) : (
-        <SignupPage 
-          onBackClick={navigateToMain} 
-          onSignupSuccess={handleSignupSuccess}
-          onLogoClick={handleLogoClick}
-        />
-      )}
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <MainPage 
+                isLoggedIn={isUserLoggedIn}
+                onLogout={handleLogout}
+                onLogoClick={handleLogoClick}
+              />
+            } 
+          />
+          <Route 
+            path="/login" 
+            element={
+              <LoginPage 
+                onLoginSuccess={handleLoginSuccess}
+                onLogoClick={handleLogoClick}
+              />
+            } 
+          />
+          <Route 
+            path="/signup" 
+            element={
+              <SignupPage 
+                onSignupSuccess={handleSignupSuccess}
+                onLogoClick={handleLogoClick}
+              />
+            } 
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

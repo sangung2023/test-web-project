@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import bannerImage from './images/banner.png';
 import './MainPage.css';
@@ -11,7 +12,8 @@ interface MainPageProps {
   onLogoClick?: () => void;
 }
 
-const MainPage: React.FC<MainPageProps> = ({ onLoginClick, onSignupClick, isLoggedIn = false, onLogout, onLogoClick }) => {
+const MainPage: React.FC<MainPageProps> = ({ isLoggedIn = false, onLogout, onLogoClick }) => {
+  const navigate = useNavigate();
   const teamMembers = [
     {
       name: '임성빈',
@@ -38,8 +40,6 @@ const MainPage: React.FC<MainPageProps> = ({ onLoginClick, onSignupClick, isLogg
   return (
     <div className="main-page">
       <Header 
-        onLoginClick={onLoginClick} 
-        onSignupClick={onSignupClick}
         isLoggedIn={isLoggedIn}
         onLogout={onLogout}
         onLogoClick={onLogoClick}

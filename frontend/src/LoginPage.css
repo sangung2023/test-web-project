@@ -164,6 +164,16 @@
 }
 
 /* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .login-container {
+    padding: 30px 20px;
+  }
+  
+  .login-card {
+    padding: 35px;
+  }
+}
+
 @media (max-width: 768px) {
   .login-container {
     padding: 20px 15px;
@@ -171,17 +181,97 @@
   
   .login-card {
     padding: 30px 25px;
+    max-width: 400px;
   }
   
   .login-header h1 {
     font-size: 1.7rem;
   }
   
+  .login-header p {
+    font-size: 0.9rem;
+  }
+  
+  .form-group input {
+    padding: 12px 15px;
+    font-size: 0.95rem;
+  }
+  
+  .login-button {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
   
   .back-button {
     position: static;
     width: 100%;
     margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 15px 10px;
+  }
+  
+  .login-card {
+    padding: 25px 20px;
+    max-width: 100%;
+  }
+  
+  .login-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .login-header p {
+    font-size: 0.85rem;
+  }
+  
+  .login-logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .login-button {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+  
+  .signup-link p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-card {
+    padding: 20px 15px;
+  }
+  
+  .login-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  .login-header p {
+    font-size: 0.8rem;
+  }
+  
+  .form-group input {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+  
+  .login-button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
   }
 }
 

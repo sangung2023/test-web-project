@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import './SignupPage.css';
 
@@ -8,7 +9,8 @@ interface SignupPageProps {
   onLogoClick?: () => void;
 }
 
-const SignupPage: React.FC<SignupPageProps> = ({ onBackClick, onSignupSuccess, onLogoClick }) => {
+const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -52,12 +54,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBackClick, onSignupSuccess, o
     if (onSignupSuccess) {
       onSignupSuccess();
     }
+    navigate('/login');
   };
 
   const handleBackToHome = () => {
-    if (onBackClick) {
-      onBackClick();
-    }
+    navigate('/');
   };
 
   return (
@@ -150,7 +151,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBackClick, onSignupSuccess, o
             </button>
             
             <div className="login-link">
-              <p>이미 계정이 있으신가요? <button type="button" className="link-button" onClick={() => onBackClick?.()}>로그인</button></p>
+              <p>이미 계정이 있으신가요? <button type="button" className="link-button" onClick={() => navigate('/login')}>로그인</button></p>
             </div>
           </form>
           

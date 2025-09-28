@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import { setCookie } from './utils/cookieUtils.js';
 import './LoginPage.css';
@@ -9,7 +10,8 @@ interface LoginPageProps {
   onLogoClick?: () => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess, onLogoClick }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onLogoClick }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -41,6 +43,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess, onLo
       if (onLoginSuccess) {
         onLoginSuccess();
       }
+      // 로그인 성공 후 홈으로 이동하고 페이지 새로고침
+      navigate('/');
+      window.location.reload();
     } else {
       // 로그인 실패
       setErrorMessage('아이디 또는 비밀번호가 올바르지 않습니다.');
@@ -48,9 +53,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess, onLo
   };
 
   const handleBackToHome = () => {
-    if (onBackClick) {
-      onBackClick();
-    }
+    navigate('/');
   };
 
   return (
@@ -106,7 +109,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBackClick, onLoginSuccess, onLo
             </button>
             
             <div className="signup-link">
-              <p>계정이 없으신가요? <button type="button" className="link-button">회원가입</button></p>
+              <p>계정이 없으신가요? <button type="button" className="link-button" onClick={() => navigate('/signup')}>회원가입</button></p>
             </div>
           </form>
           

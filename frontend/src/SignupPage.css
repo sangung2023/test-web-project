@@ -170,6 +170,17 @@
 
 
 /* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .signup-container {
+    padding: 30px 20px;
+  }
+  
+  .signup-card {
+    padding: 35px;
+    max-width: 450px;
+  }
+}
+
 @media (max-width: 768px) {
   .signup-container {
     padding: 20px 15px;
@@ -177,16 +188,97 @@
   
   .signup-card {
     padding: 30px 25px;
+    max-width: 400px;
   }
   
   .signup-header h1 {
     font-size: 1.7rem;
   }
   
+  .signup-header p {
+    font-size: 0.9rem;
+  }
+  
+  .form-group input {
+    padding: 12px 15px;
+    font-size: 0.95rem;
+  }
+  
+  .signup-button {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+  
   .back-button {
     position: static;
     width: 100%;
     margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-container {
+    padding: 15px 10px;
+  }
+  
+  .signup-card {
+    padding: 25px 20px;
+    max-width: 100%;
+  }
+  
+  .signup-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .signup-header p {
+    font-size: 0.85rem;
+  }
+  
+  .signup-logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .form-group {
+    margin-bottom: 18px;
+  }
+  
+  .form-group input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .signup-button {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+  
+  .login-link p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .signup-card {
+    padding: 20px 15px;
+  }
+  
+  .signup-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  .signup-header p {
+    font-size: 0.8rem;
+  }
+  
+  .form-group input {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+  
+  .signup-button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
   }
 }
 

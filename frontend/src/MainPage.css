@@ -183,22 +183,55 @@
 }
 
 /* 반응형 디자인 */
-@media (max-width: 768px) {
-  .background-section {
-    flex-direction: column;
-    text-align: center;
+@media (max-width: 1200px) {
+  .main-page {
+    max-width: 100%;
+    padding: 15px;
   }
   
-  .background-right .section-title {
-    text-align: center;
+  .section-block {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .team-grid {
+    gap: 15px;
+  }
+  
+  .team-card {
+    padding: 20px 10px;
+  }
+  
+  .team-image {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-page {
+    padding: 10px;
+  }
+  
+  .section-block {
+    padding: 20px;
+    margin-bottom: 20px;
+    margin-top: 20px;
   }
   
   .section-title {
     font-size: 2rem;
   }
   
-  .background-right .section-title {
-    font-size: 2.5rem;
+  .section-text {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  .banner-image {
+    margin: 20px auto;
+    max-height: 300px;
   }
   
   .team-grid {
@@ -209,9 +242,93 @@
   .team-card {
     flex: 1;
     max-width: 100%;
+    padding: 20px;
+  }
+  
+  .team-image {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .architecture-placeholder {
+    padding: 40px 20px;
+  }
+  
+  .architecture-placeholder p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-page {
+    padding: 5px;
   }
   
   .section-block {
-    padding: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .section-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .banner-image {
+    margin: 15px auto;
+    max-height: 250px;
+  }
+  
+  .team-card {
+    padding: 15px;
+  }
+  
+  .team-image {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .team-name {
+    font-size: 1.1rem;
+  }
+  
+  .team-role {
+    font-size: 0.9rem;
+  }
+  
+  .architecture-placeholder {
+    padding: 30px 15px;
+  }
+  
+  .architecture-placeholder p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .section-title {
+    font-size: 1.3rem;
+  }
+  
+  .section-text {
+    font-size: 0.85rem;
+  }
+  
+  .team-image {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .team-name {
+    font-size: 1rem;
+  }
+  
+  .team-role {
+    font-size: 0.8rem;
   }
 }
