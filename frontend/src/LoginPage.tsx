@@ -54,14 +54,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onLogoClick }) =>
 
       console.log('응답 상태:', response.status);
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
       console.log('로그인 응답:', data); // 디버깅용 로그
 
-      if (data.success) {
+      if (response.ok && data.success) {
         // 로그인 성공 - JWT 토큰 저장
         console.log('저장할 토큰:', data.accessToken); // 디버깅용 로그
         console.log('저장할 사용자:', data.user); // 디버깅용 로그
@@ -87,12 +83,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onLogoClick }) =>
         navigate('/');
         window.location.reload();
       } else {
-        // 로그인 실패
-        setErrorMessage(data.message || '로그인에 실패했습니다.');
+        // 로그인 실패 - 서버에서 주는 에러 메시지 표시
+        setErrorMessage(data.message || data.error || '로그인에 실패했습니다.');
       }
     } catch (error) {
       console.error('로그인 오류:', error);
-      setErrorMessage('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+      
+      // 네트워크 에러인지 확인
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setErrorMessage('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+      } else {
+        setErrorMessage('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     }
   };
 

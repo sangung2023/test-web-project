@@ -41,6 +41,11 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
     navigate('/mypage');
   };
 
+  const handleBoardClick = () => {
+    console.log('🔗 게시판 버튼 클릭됨');
+    navigate('/board');
+  };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -81,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
             <li>
               <button 
                 className="nav-link" 
-                onClick={() => handleLinkClick('guide')}
+                onClick={handleBoardClick}
               >
                 게시판
               </button>

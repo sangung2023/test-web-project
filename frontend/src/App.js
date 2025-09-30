@@ -4,6 +4,7 @@ import MainPage from './MainPage.tsx';
 import LoginPage from './LoginPage.tsx';
 import SignupPage from './SignupPage.tsx';
 import MyPage from './MyPage.tsx';
+import BoardPage from './BoardPage.tsx';
 import { isLoggedIn, clearAllAuthCookies, getAuthHeaders } from './utils/cookieUtils.js';
 import './App.css';
 
@@ -154,6 +155,16 @@ function App() {
             path="/mypage" 
             element={
               <MyPage 
+                isLoggedIn={isUserLoggedIn}
+                onLogout={handleLogout}
+                onLogoClick={handleLogoClick}
+              />
+            } 
+          />
+          <Route 
+            path="/board" 
+            element={
+              <BoardPage 
                 isLoggedIn={isUserLoggedIn}
                 onLogout={handleLogout}
                 onLogoClick={handleLogoClick}
