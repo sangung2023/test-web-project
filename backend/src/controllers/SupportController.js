@@ -17,7 +17,18 @@ export class SupportController {
         });
       }
 
-      const result = await this.supportService.createSupport(req.body, userId);
+      // FormData에서 데이터 추출
+      const supportData = {
+        category: req.body.category,
+        name: req.body.name,
+        mobile: req.body.mobile,
+        email: req.body.email,
+        subject: req.body.subject,
+        content: req.body.content,
+        file: req.file ? req.file.filename : null
+      };
+
+      const result = await this.supportService.createSupport(supportData, userId);
       
       res.status(201).json(result);
     } catch (error) {
@@ -31,6 +42,13 @@ export class SupportController {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const userId = req.user?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: '인증이 필요합니다.'
+        });
+      }
       
       const result = await this.supportService.getSupports(page, limit, userId);
       

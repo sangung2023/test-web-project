@@ -7,6 +7,15 @@ export class SupportService {
     this.supportRepository = new SupportRepository();
   }
 
+  // ENUM 카테고리를 한글로 변환
+  mapCategoryToKorean(category) {
+    const categoryMap = {
+      'PROJECT': '프로젝트 관련 질문',
+      'ETC': '기타 질문'
+    };
+    return categoryMap[category] || '기타 질문';
+  }
+
   // 문의 생성
   async createSupport(supportData, userId) {
     try {
@@ -25,7 +34,7 @@ export class SupportService {
           supportId: support.supportId,
           userId: support.userId,
           title: support.title,
-          category: support.category,
+          category: this.mapCategoryToKorean(support.category),
           content: support.content,
           file: support.file,
           createdAt: support.createdAt
@@ -53,7 +62,7 @@ export class SupportService {
             supportId: support.supportId,
             userId: support.userId,
             title: support.title,
-            category: support.category,
+            category: this.mapCategoryToKorean(support.category),
             content: support.content,
             file: support.file,
             createdAt: support.createdAt,
@@ -97,7 +106,7 @@ export class SupportService {
           supportId: support.supportId,
           userId: support.userId,
           title: support.title,
-          category: support.category,
+          category: this.mapCategoryToKorean(support.category),
           content: support.content,
           file: support.file,
           createdAt: support.createdAt,
@@ -144,7 +153,7 @@ export class SupportService {
           supportId: updatedSupport.supportId,
           userId: updatedSupport.userId,
           title: updatedSupport.title,
-          category: updatedSupport.category,
+          category: this.mapCategoryToKorean(updatedSupport.category),
           content: updatedSupport.content,
           file: updatedSupport.file,
           updatedAt: updatedSupport.updatedAt

@@ -163,5 +163,9 @@ export const getAccessToken = () => {
 
 export const getAuthHeaders = () => {
   const token = getAccessToken();
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
 };

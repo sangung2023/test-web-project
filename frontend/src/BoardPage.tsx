@@ -23,20 +23,20 @@ interface BoardPageProps {
   onLogoClick?: () => void;
 }
 
-const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }) => {
+const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardPageProps) => {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<BoardPost[]>([]);
+  const [posts, setPosts] = useState([] as BoardPost[]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showWriteForm, setShowWriteForm] = useState(false);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState(null as number | null);
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
     image: ''
   });
-  const [selectedPost, setSelectedPost] = useState<BoardPost | null>(null);
+  const [selectedPost, setSelectedPost] = useState(null as BoardPost | null);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editPost, setEditPost] = useState({
@@ -45,6 +45,59 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
     image: ''
   });
   const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // 이미지 URL을 적절히 처리하는 함수
+  const getImageUrl = (url: string) => {
+    console.log('🔍 원본 URL:', url);
+    console.log('🔍 URL 타입:', url.startsWith('data:image/') ? 'data:image' : '일반 URL');
+    
+    // data:image URL인 경우 유효성 검증 후 반환
+    if (url.startsWith('data:image/')) {
+      if (isValidDataImageUrl(url)) {
+        console.log('✅ 유효한 data:image URL 직접 사용');
+        return url;
+      } else {
+        console.warn('⚠️ 유효하지 않은 data:image URL:', url);
+        // 유효하지 않은 data:image URL도 일단 시도해보기
+        return url;
+      }
+    }
+    
+    // 이미 프록시 URL인 경우 그대로 반환
+    if (url.includes('images.weserv.nl') || url.includes('cors-anywhere.herokuapp.com')) {
+      console.log('✅ 프록시 URL 직접 사용');
+      return url;
+    }
+    
+    // 구글 이미지 URL인 경우 특별 처리
+    if (url.includes('googleusercontent.com') || url.includes('googleapis.com')) {
+      const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+      console.log('✅ 구글 이미지 프록시 URL 생성:', proxyUrl);
+      return proxyUrl;
+    }
+    
+    // 기타 URL들도 프록시를 통해 처리
+    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+    console.log('✅ 일반 URL 프록시 URL 생성:', proxyUrl);
+    return proxyUrl;
+  };
+
+  // data:image URL인지 확인하는 함수
+  const isDataImageUrl = (url: string) => {
+    return url.startsWith('data:image/');
+  };
+
+  // data:image URL의 유효성을 검증하는 함수
+  const isValidDataImageUrl = (url: string) => {
+    if (!url.startsWith('data:image/')) {
+      return false;
+    }
+    
+    // data:image/jpeg;base64, 또는 data:image/png;base64, 형태인지 확인
+    const dataImagePattern = /^data:image\/(jpeg|jpg|png|gif|webp|svg\+xml);base64,/;
+    return dataImagePattern.test(url);
+  };
 
   // 현재 사용자 정보 조회
   const fetchCurrentUser = async () => {
@@ -53,9 +106,8 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
         method: 'GET',
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
           ...getAuthHeaders()
-        }
+        } as any
       });
 
       if (response.ok) {
@@ -77,9 +129,8 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
         method: 'GET',
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
           ...getAuthHeaders()
-        }
+        } as any
       });
 
       if (!response.ok) {
@@ -109,7 +160,7 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
   };
 
   // 게시글 작성
-  const handleWritePost = async (e: React.FormEvent) => {
+  const handleWritePost = async (e: any) => {
     e.preventDefault();
     
     try {
@@ -117,9 +168,8 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
         method: 'POST',
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
           ...getAuthHeaders()
-        },
+        } as any,
         body: JSON.stringify(newPost)
       });
 
@@ -163,9 +213,8 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
         method: 'DELETE',
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
           ...getAuthHeaders()
-        }
+        } as any
       });
 
       if (!response.ok) {
@@ -284,7 +333,7 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
   };
 
   // 게시글 수정
-  const handleEditPost = async (e: React.FormEvent) => {
+  const handleEditPost = async (e: any) => {
     e.preventDefault();
     
     if (!selectedPost) return;
@@ -294,9 +343,8 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
         method: 'PUT',
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
           ...getAuthHeaders()
-        },
+        } as any,
         body: JSON.stringify(editPost)
       });
 
@@ -344,9 +392,8 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
           method: 'POST',
           credentials: 'include',
           headers: {
-            'Content-Type': 'application/json',
             ...getAuthHeaders()
-          }
+          } as any
         });
       } catch (error) {
         console.warn('백엔드 로그아웃 API 호출 실패:', error);
@@ -433,12 +480,83 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
               <div className="form-group">
                 <label htmlFor="image">이미지 URL (선택사항)</label>
                 <input
-                  type="url"
+                  type="text"
                   id="image"
                   value={newPost.image}
-                  onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
-                  placeholder="이미지 URL을 입력하세요"
+                  onChange={(e) => {
+                    const url = e.target.value;
+                    setNewPost({ ...newPost, image: url });
+                    if (url) {
+                      setImageLoading(true);
+                    }
+                  }}
+                  placeholder="이미지 URL을 입력하세요 (예: https://example.com/image.jpg)"
                 />
+                <div className="url-help">
+                  <p>💡 팁: http:// 또는 https://로 시작하는 완전한 URL을 입력하세요</p>
+                </div>
+                {newPost.image && (
+                  <div className="image-preview">
+                    {imageLoading && (
+                      <div className="image-loading">
+                        <div className="loading-spinner"></div>
+                        <p>🔄 이미지 로딩 중...</p>
+                      </div>
+                    )}
+                    <img 
+                      src={getImageUrl(newPost.image)} 
+                      alt="미리보기"
+                      style={{display: 'none'}}
+                      onLoad={(e) => {
+                        console.log('✅ 이미지 로드 성공:', {
+                          originalUrl: newPost.image,
+                          processedUrl: getImageUrl(newPost.image),
+                          isDataImage: isDataImageUrl(newPost.image)
+                        });
+                        e.currentTarget.style.display = 'block';
+                        setImageLoading(false);
+                        setImageError(false);
+                        const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (errorDiv) errorDiv.style.display = 'none';
+                      }}
+                      onError={(e) => {
+                        console.error('❌ 이미지 로드 실패:', {
+                          originalUrl: newPost.image,
+                          processedUrl: getImageUrl(newPost.image),
+                          isDataImage: isDataImageUrl(newPost.image),
+                          error: e
+                        });
+                        e.currentTarget.style.display = 'none';
+                        setImageLoading(false);
+                        setImageError(true);
+                        const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (errorDiv) errorDiv.style.display = 'block';
+                      }}
+                    />
+                    <div className="image-error" style={{display: 'none'}}>
+                      <p>⚠️ 이미지를 불러올 수 없습니다</p>
+                      <p>URL: {newPost.image}</p>
+                      <p>처리된 URL: {getImageUrl(newPost.image)}</p>
+                      <div className="error-solutions">
+                        <p>💡 해결 방법:</p>
+                        <ul>
+                          <li><strong>구글 이미지:</strong> 이미지 주소를 우클릭 → "이미지 주소 복사" 사용</li>
+                          <li><strong>다른 사이트:</strong> 이미지를 우클릭 → "이미지 주소 복사" 사용</li>
+                          <li><strong>직접 업로드:</strong> <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a> 같은 이미지 호스팅 서비스 사용</li>
+                          <li><strong>다른 이미지:</strong> 다른 이미지 URL을 시도해보세요</li>
+                        </ul>
+                      </div>
+                      <div className="alternative-services">
+                        <p>🖼️ 추천 이미지 호스팅 서비스:</p>
+                        <div className="service-links">
+                          <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a>
+                          <a href="https://postimages.org" target="_blank" rel="noopener noreferrer">PostImages</a>
+                          <a href="https://imgbb.com" target="_blank" rel="noopener noreferrer">ImgBB</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="form-actions">
@@ -516,10 +634,27 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
                   
                   <div className="post-content">
                     <h3 className="post-title">{post.title}</h3>
-                    <p className="post-text">{post.content}</p>
                     {post.image && (
                       <div className="post-image">
-                        <img src={post.image} alt="게시글 이미지" />
+                        <img 
+                          src={getImageUrl(post.image)} 
+                          alt="게시글 이미지"
+                          onLoad={() => {
+                            console.log('✅ 게시글 목록 이미지 로드 성공:', {
+                              originalUrl: post.image,
+                              processedUrl: getImageUrl(post.image),
+                              isDataImage: isDataImageUrl(post.image)
+                            });
+                          }}
+                          onError={(e) => {
+                            console.error('❌ 게시글 목록 이미지 로드 실패:', {
+                              originalUrl: post.image,
+                              processedUrl: getImageUrl(post.image),
+                              isDataImage: isDataImageUrl(post.image),
+                              error: e
+                            });
+                          }}
+                        />
                       </div>
                     )}
                   </div>
@@ -557,7 +692,25 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
               
               {selectedPost.image && (
                 <div className="modal-image">
-                  <img src={selectedPost.image} alt="게시글 이미지" />
+                  <img 
+                    src={getImageUrl(selectedPost.image)} 
+                    alt="게시글 이미지"
+                    onLoad={() => {
+                      console.log('✅ 상세보기 이미지 로드 성공:', {
+                        originalUrl: selectedPost.image,
+                        processedUrl: getImageUrl(selectedPost.image),
+                        isDataImage: isDataImageUrl(selectedPost.image)
+                      });
+                    }}
+                    onError={(e) => {
+                      console.error('❌ 상세보기 이미지 로드 실패:', {
+                        originalUrl: selectedPost.image,
+                        processedUrl: getImageUrl(selectedPost.image),
+                        isDataImage: isDataImageUrl(selectedPost.image),
+                        error: e
+                      });
+                    }}
+                  />
                 </div>
               )}
             </div>
@@ -625,22 +778,21 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
               <div className="form-group">
                 <label htmlFor="edit-image">🖼️ 이미지 URL (선택 사항)</label>
                 <input
-                  type="url"
+                  type="text"
                   id="edit-image"
                   value={editPost.image}
                   onChange={(e) => {
-                    setEditPost({ ...editPost, image: e.target.value });
-                    if (e.target.value && e.target.value.startsWith('http')) {
+                    const url = e.target.value;
+                    setEditPost({ ...editPost, image: url });
+                    if (url) {
                       setImageLoading(true);
                     }
                   }}
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="이미지 URL을 입력하세요 (예: https://example.com/image.jpg)"
                 />
-                {editPost.image && !editPost.image.startsWith('http') && (
-                  <div className="url-warning">
-                    <p>⚠️ 올바른 URL 형식이 아닙니다 (http:// 또는 https://로 시작해야 합니다)</p>
-                  </div>
-                )}
+                <div className="url-help">
+                  <p>💡 팁: http:// 또는 https://로 시작하는 완전한 URL을 입력하세요</p>
+                </div>
                 {editPost.image && (
                   <div className="image-preview">
                     {imageLoading && (
@@ -650,18 +802,20 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
                       </div>
                     )}
                     <img 
-                      src={editPost.image} 
+                      src={getImageUrl(editPost.image)} 
                       alt="미리보기"
                       style={{display: 'none'}}
                       onLoad={(e) => {
                         e.currentTarget.style.display = 'block';
                         setImageLoading(false);
+                        setImageError(false);
                         const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
                         if (errorDiv) errorDiv.style.display = 'none';
                       }}
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                         setImageLoading(false);
+                        setImageError(true);
                         const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
                         if (errorDiv) errorDiv.style.display = 'block';
                       }}
@@ -669,14 +823,23 @@ const BoardPage: React.FC<BoardPageProps> = ({ isLoggedIn: propIsLoggedIn, onLog
                     <div className="image-error" style={{display: 'none'}}>
                       <p>⚠️ 이미지를 불러올 수 없습니다</p>
                       <p>URL: {editPost.image}</p>
+                      <p>처리된 URL: {getImageUrl(editPost.image)}</p>
                       <div className="error-solutions">
                         <p>💡 해결 방법:</p>
                         <ul>
-                          <li>URL이 올바른지 확인해주세요</li>
-                          <li>이미지가 공개되어 있는지 확인해주세요</li>
-                          <li>CORS 정책으로 차단될 수 있습니다</li>
-                          <li>다른 이미지 URL을 시도해보세요</li>
+                          <li><strong>구글 이미지:</strong> 이미지 주소를 우클릭 → "이미지 주소 복사" 사용</li>
+                          <li><strong>다른 사이트:</strong> 이미지를 우클릭 → "이미지 주소 복사" 사용</li>
+                          <li><strong>직접 업로드:</strong> <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a> 같은 이미지 호스팅 서비스 사용</li>
+                          <li><strong>다른 이미지:</strong> 다른 이미지 URL을 시도해보세요</li>
                         </ul>
+                      </div>
+                      <div className="alternative-services">
+                        <p>🖼️ 추천 이미지 호스팅 서비스:</p>
+                        <div className="service-links">
+                          <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a>
+                          <a href="https://postimages.org" target="_blank" rel="noopener noreferrer">PostImages</a>
+                          <a href="https://imgbb.com" target="_blank" rel="noopener noreferrer">ImgBB</a>
+                        </div>
                       </div>
                     </div>
                   </div>

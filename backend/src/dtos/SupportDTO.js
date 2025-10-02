@@ -2,10 +2,18 @@
 export class CreateSupportDTO {
   constructor(data) {
     this.userId = data.userId;
-    this.title = data.title;
-    this.category = data.category;
+    this.title = data.subject || data.title; // 프론트엔드에서 subject로 보내므로 매핑
+    this.category = this.mapCategory(data.category); // 한글 카테고리를 ENUM으로 변환
     this.content = data.content;
     this.file = data.file;
+  }
+
+  mapCategory(koreanCategory) {
+    const categoryMap = {
+      '프로젝트 관련 질문': 'PROJECT',
+      '기타 질문': 'ETC'
+    };
+    return categoryMap[koreanCategory] || 'ETC';
   }
 
   validate() {

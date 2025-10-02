@@ -5,6 +5,8 @@ import LoginPage from './LoginPage.tsx';
 import SignupPage from './SignupPage.tsx';
 import MyPage from './MyPage.tsx';
 import BoardPage from './BoardPage.tsx';
+import InquiryPage from './InquiryPage.tsx';
+import InquiryHistoryPage from './InquiryHistoryPage.tsx';
 import { isLoggedIn, clearAllAuthCookies, getAuthHeaders } from './utils/cookieUtils.js';
 import './App.css';
 
@@ -165,6 +167,26 @@ function App() {
             path="/board" 
             element={
               <BoardPage 
+                isLoggedIn={isUserLoggedIn}
+                onLogout={handleLogout}
+                onLogoClick={handleLogoClick}
+              />
+            } 
+          />
+          <Route 
+            path="/inquiry" 
+            element={
+              <InquiryPage 
+                isLoggedIn={isUserLoggedIn}
+                onLogout={handleLogout}
+                onLogoClick={handleLogoClick}
+              />
+            } 
+          />
+          <Route 
+            path="/inquiry-history" 
+            element={
+              <InquiryHistoryPage 
                 isLoggedIn={isUserLoggedIn}
                 onLogout={handleLogout}
                 onLogoClick={handleLogoClick}

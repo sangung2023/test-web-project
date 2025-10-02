@@ -226,6 +226,7 @@
   max-height: 400px;
   cursor: pointer;
   position: relative;
+  overflow: hidden; /* 카드 내용이 넘치지 않도록 */
 }
 
 .post-card:hover {
@@ -306,21 +307,23 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start; /* 상단 정렬 */
+  min-height: 0; /* flexbox에서 overflow 처리 */
 }
 
 .post-title {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #212529;
-  margin-bottom: 10px;
-  line-height: 1.3;
+  margin-bottom: 15px;
+  line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3; /* 제목을 3줄까지 표시 */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+/* 게시글 카드에서 내용 텍스트는 표시하지 않음
 .post-text {
   color: #495057;
   line-height: 1.5;
@@ -334,17 +337,21 @@
   flex: 1;
   min-height: 80px;
 }
+*/
 
 .post-image {
   margin-top: 10px;
   flex-shrink: 0;
+  max-height: 150px; /* 이미지 컨테이너 최대 높이 제한 */
+  overflow: hidden; /* 넘치는 부분 숨김 */
+  border-radius: 8px;
 }
 
 .post-image img {
-  max-width: 100%;
-  height: auto;
-  max-height: 120px;
-  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  max-height: 150px; /* 이미지 최대 높이 제한 */
+  object-fit: cover; /* 비율 유지하면서 크롭 */
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
@@ -880,4 +887,170 @@
   .modal-footer {
     padding: 15px 20px;
   }
+}
+
+/* 이미지 미리보기 및 URL 도움말 스타일 */
+.url-help {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid #4ecdc4;
+}
+
+.url-help p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+.image-preview {
+  margin-top: 15px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background: #f8f9fa;
+}
+
+.image-preview img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+}
+
+.image-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.image-loading p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.image-error {
+  padding: 20px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.image-error p {
+  margin: 0 0 10px 0;
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.error-solutions {
+  margin-top: 15px;
+  text-align: left;
+}
+
+.error-solutions p {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.error-solutions ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #4a5568;
+}
+
+.error-solutions li {
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.alternative-services {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.alternative-services p {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.service-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.service-links a {
+  display: inline-block;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.service-links a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.warning-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+  border-left: 4px solid #e53e3e;
+}
+
+.warning-box p {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  color: #e53e3e;
+}
+
+.warning-box ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #c53030;
+}
+
+.warning-box li {
+  margin-bottom: 5px;
+  font-size: 0.9rem;
 }

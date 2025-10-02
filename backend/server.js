@@ -2,10 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import usersRouter from './src/routes/users.router.js';
 import boardsRouter from './src/routes/boards.router.js';
 import supportsRouter from './src/routes/supports.router.js';
 import { testConnection, disconnectDatabase } from './src/config/database.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -20,6 +25,9 @@ app.use(cors({
 app.use(cookieParser()); // 쿠키 파싱 미들웨어
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 정적 파일 서빙 (업로드된 파일)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 기본 라우트
 app.get('/', (req, res) => {
