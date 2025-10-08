@@ -23,8 +23,8 @@ app.use(cors({
   credentials: true // 쿠키 전송 허용
 }));
 app.use(cookieParser()); // 쿠키 파싱 미들웨어
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' })); // JSON 크기 제한 증가
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // URL 인코딩 크기 제한 증가
 
 // 정적 파일 서빙 (업로드된 파일)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -62,8 +62,21 @@ app.use('*', (req, res) => {
 
 // 에러 핸들러
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('=== 서버 에러 발생 ===');
+  console.error('에러 타입:', err.constructor.name);
+  console.error('에러 메시지:', err.message);
+  console.error('에러 스택:', err.stack);
+  console.error('요청 URL:', req.url);
+  console.error('요청 메서드:', req.method);
+  console.error('요청 헤더:', req.headers);
+  
+  // 이미 응답이 전송된 경우
+  if (res.headersSent) {
+    return next(err);
+  }
+  
   res.status(500).json({
+    success: false,
     error: '서버 내부 오류가 발생했습니다.',
     message: process.env.NODE_ENV === 'development' ? err.message : '서버 오류'
   });

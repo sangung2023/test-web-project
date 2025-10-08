@@ -147,7 +147,25 @@
 }
 
 .email-group select {
-  width: 120px;
+  width: 140px;
+  padding: 12px 8px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.email-group select:hover {
+  border-color: #667eea;
+}
+
+.email-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .file-group {

@@ -47,6 +47,9 @@ model Board {
 model Support {
   supportId        Int             @id @default(autoincrement())
   userId    Int             // 사용자 아이디 (Foreign Key)
+  name      String          @db.VarChar(50) // 문의자 이름
+  mobile    String          @db.VarChar(20) // 전화번호
+  email     String          @db.VarChar(100) // 이메일
   title     String          @db.VarChar(255) // 문의 제목
   category  SupportCategory // 카테고리 (ENUM, NOT NULL)
   content   String          @db.Text // 문의 내용

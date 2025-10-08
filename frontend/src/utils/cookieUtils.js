@@ -161,9 +161,9 @@ export const getAccessToken = () => {
   return getCookie('accessToken');
 };
 
-export const getAuthHeaders = () => {
+export const getAuthHeaders = (forFormData = false) => {
   const token = getAccessToken();
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = forFormData ? {} : { 'Content-Type': 'application/json' };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }

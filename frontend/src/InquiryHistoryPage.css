@@ -180,20 +180,23 @@
 }
 
 .inquiries-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .inquiry-card {
   background: white;
   border-radius: 15px;
-  padding: 25px;
+  padding: 20px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   border: 1px solid rgba(255,255,255,0.2);
   cursor: pointer;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .inquiry-card:hover {
@@ -219,9 +222,9 @@
 
 .inquiry-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 120px;
 }
 
 .category-badge {
@@ -239,14 +242,17 @@
 }
 
 .inquiry-content {
-  margin-bottom: 15px;
+  flex: 1;
+  margin: 0 15px;
+  display: flex;
+  align-items: center;
 }
 
 .inquiry-title {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 600;
   color: #212529;
-  margin-bottom: 10px;
+  margin: 0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -254,22 +260,14 @@
   overflow: hidden;
 }
 
-.inquiry-preview {
-  color: #6c757d;
-  line-height: 1.5;
-  font-size: 0.9rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
 
 .inquiry-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 15px;
-  border-top: 1px solid #e9ecef;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 150px;
+  padding-top: 0;
+  border-top: none;
 }
 
 .inquiry-author {
@@ -423,13 +421,34 @@
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .inquiries-list {
-    grid-template-columns: 1fr;
     gap: 15px;
   }
   
   .inquiry-card {
-    padding: 20px;
+    padding: 15px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
   }
+  
+  .inquiry-header {
+    min-width: auto;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .inquiry-content {
+    margin: 0;
+  }
+  
+  .inquiry-footer {
+    min-width: auto;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
   
   .modal-content {
     margin: 10px;
@@ -452,5 +471,40 @@
   
   .info-label {
     min-width: auto;
+  }
+
+/* 새로운 필드들을 위한 스타일 */
+.inquiry-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.inquiry-author,
+.inquiry-contact,
+.inquiry-email {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.inquiry-contact,
+.inquiry-email {
+  font-size: 0.8rem;
+  color: #868e96;
+}
+
+/* 모바일에서 새로운 필드들 스타일 */
+@media (max-width: 768px) {
+  .inquiry-author-info {
+    gap: 3px;
+  }
+  
+  .inquiry-author,
+  .inquiry-contact,
+  .inquiry-email {
+    font-size: 0.8rem;
   }
 }

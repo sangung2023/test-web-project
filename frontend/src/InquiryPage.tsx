@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
-import { getAuthHeaders, isLoggedIn } from './utils/cookieUtils.js';
+import { getAuthHeaders, getAccessToken, isLoggedIn } from './utils/cookieUtils.js';
 import './InquiryPage.css';
 
 interface InquiryPageProps {
@@ -44,6 +44,9 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
     setError('');
 
     try {
+      console.log('문의 데이터:', inquiry);
+      console.log('인증 헤더:', getAuthHeaders());
+      
       const formData = new FormData();
       formData.append('category', inquiry.category);
       formData.append('name', inquiry.name);
@@ -55,17 +58,30 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
         formData.append('file', inquiry.file);
       }
 
+      console.log('FormData 내용:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      // FormData는 직접 fetch로 처리
+      const token = getAccessToken();
+      const headers: any = {
+        'Authorization': `Bearer ${token}`
+      };
+      
+      console.log('FormData 직접 전송:', { headers, formData });
+      
       const response = await fetch('http://localhost:5000/api/supports', {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          ...getAuthHeaders()
-        } as any,
+        headers,
         body: formData
       });
-
+      
       if (!response.ok) {
-        throw new Error('문의 제출에 실패했습니다.');
+        const errorData = await response.json().catch(() => null);
+        console.error('문의 제출 실패:', response.status, response.statusText, errorData);
+        throw new Error(`문의 제출에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
 
       const data = await response.json();
@@ -253,11 +269,25 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
                     }}
                     required
                   />
-                  <select>
+                  <select
+                    value={inquiry.email.split('@')[1] || '직접입력'}
+                    onChange={(e) => {
+                      console.log('도메인 선택:', e.target.value);
+                      if (e.target.value !== '직접입력') {
+                        const parts = inquiry.email.split('@');
+                        const newEmail = `${parts[0] || ''}@${e.target.value}`;
+                        console.log('새로운 이메일:', newEmail);
+                        setInquiry({ ...inquiry, email: newEmail });
+                      }
+                    }}
+                  >
                     <option value="직접입력">직접입력</option>
                     <option value="gmail.com">gmail.com</option>
                     <option value="naver.com">naver.com</option>
                     <option value="daum.net">daum.net</option>
+                    <option value="yahoo.com">yahoo.com</option>
+                    <option value="outlook.com">outlook.com</option>
+                    <option value="hotmail.com">hotmail.com</option>
                   </select>
                 </div>
               </div>

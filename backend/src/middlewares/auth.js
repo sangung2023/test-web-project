@@ -49,9 +49,10 @@ export const authenticateToken = async (req, res, next) => {
     // 토큰 검증
     const decoded = verifyToken(token);
     if (!decoded) {
-      return res.status(403).json({
+      return res.status(401).json({
         success: false,
-        message: '유효하지 않은 토큰입니다.'
+        message: '토큰이 만료되었습니다.',
+        code: 'TOKEN_EXPIRED'
       });
     }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import { getAuthHeaders, isLoggedIn, clearAllAuthCookies } from './utils/cookieUtils.js';
+import { apiGet, apiPost, apiPut, apiDelete } from './utils/apiUtils.js';
 import './BoardPage.css';
 
 interface BoardPost {
@@ -125,13 +126,12 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/boards', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          ...getAuthHeaders()
-        } as any
-      });
+      const response = await apiGet('http://localhost:5000/api/boards');
+
+      if (!response) {
+        // 토큰 만료로 인한 자동 로그아웃 처리됨
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('게시글을 불러오는데 실패했습니다.');
@@ -209,13 +209,12 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          ...getAuthHeaders()
-        } as any
-      });
+      const response = await apiDelete(`http://localhost:5000/api/boards/${boardId}`);
+
+      if (!response) {
+        // 토큰 만료로 인한 자동 로그아웃 처리됨
+        return;
+      }
 
       if (!response.ok) {
         const errorData = await response.json();

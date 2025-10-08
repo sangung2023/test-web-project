@@ -4,11 +4,16 @@ import prisma from '../config/database.js';
 export class SupportRepository {
   // 문의 생성
   async create(supportData) {
-    const { userId, title, category, content, file } = supportData;
+    const { userId, name, mobile, email, title, category, content, file } = supportData;
+    
+    console.log('SupportRepository.create 호출:', { userId, name, mobile, email, title, category, content, file });
     
     return await prisma.support.create({
       data: {
         userId,
+        name,
+        mobile,
+        email,
         title,
         category,
         content,
@@ -29,7 +34,9 @@ export class SupportRepository {
   async findAll(offset = 0, limit = 10, userId = null) {
     const where = userId ? { userId } : {};
     
-    return await prisma.support.findMany({
+    console.log('SupportRepository.findAll 호출:', { offset, limit, userId, where });
+    
+    const result = await prisma.support.findMany({
       where,
       skip: offset,
       take: limit,
@@ -45,6 +52,9 @@ export class SupportRepository {
         }
       }
     });
+    
+    console.log('SupportRepository.findAll 결과:', result);
+    return result;
   }
 
   // 문의 총 개수

@@ -2,6 +2,9 @@
 export class CreateSupportDTO {
   constructor(data) {
     this.userId = data.userId;
+    this.name = data.name;
+    this.mobile = data.mobile;
+    this.email = data.email;
     this.title = data.subject || data.title; // 프론트엔드에서 subject로 보내므로 매핑
     this.category = this.mapCategory(data.category); // 한글 카테고리를 ENUM으로 변환
     this.content = data.content;
@@ -23,6 +26,18 @@ export class CreateSupportDTO {
       errors.push('사용자 ID는 필수입니다.');
     }
     
+    if (!this.name || this.name.trim().length === 0) {
+      errors.push('이름은 필수입니다.');
+    }
+    
+    if (!this.mobile || this.mobile.trim().length === 0) {
+      errors.push('전화번호는 필수입니다.');
+    }
+    
+    if (!this.email || this.email.trim().length === 0) {
+      errors.push('이메일은 필수입니다.');
+    }
+    
     if (!this.title || this.title.trim().length === 0) {
       errors.push('제목은 필수입니다.');
     }
@@ -33,6 +48,18 @@ export class CreateSupportDTO {
     
     if (!this.content || this.content.trim().length === 0) {
       errors.push('내용은 필수입니다.');
+    }
+    
+    if (this.name && this.name.length > 50) {
+      errors.push('이름은 50자를 초과할 수 없습니다.');
+    }
+    
+    if (this.mobile && this.mobile.length > 20) {
+      errors.push('전화번호는 20자를 초과할 수 없습니다.');
+    }
+    
+    if (this.email && this.email.length > 100) {
+      errors.push('이메일은 100자를 초과할 수 없습니다.');
     }
     
     if (this.title && this.title.length > 255) {

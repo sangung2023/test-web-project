@@ -35,9 +35,32 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB 제한
+    fileSize: 50 * 1024 * 1024, // 50MB 제한
+    fieldSize: 50 * 1024 * 1024, // 필드 크기 제한
   },
   fileFilter: fileFilter
 });
 
-export { upload };
+// multer 에러 처리 미들웨어
+const handleMulterError = (err, req, res, next) => {
+  console.error('Multer 에러:', err);
+  
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: '파일 크기가 너무 큽니다. (최대 50MB)'
+      });
+    }
+    if (err.code === 'LIMIT_FIELD_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: '필드 크기가 너무 큽니다.'
+      });
+    }
+  }
+  
+  next(err);
+};
+
+export { upload, handleMulterError };

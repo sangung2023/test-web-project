@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import { getAuthHeaders, isLoggedIn } from './utils/cookieUtils.js';
+import { apiGet } from './utils/apiUtils.js';
 import './InquiryHistoryPage.css';
 
 interface Inquiry {
   supportId: number;
   userId: number;
+  name: string;
+  mobile: string;
+  email: string;
   title: string;
   category: string;
   content: string;
@@ -47,13 +51,12 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
   const fetchInquiries = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/supports', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          ...getAuthHeaders()
-        } as any
-      });
+      const response = await apiGet('http://localhost:5000/api/supports');
+
+      if (!response) {
+        // 토큰 만료로 인한 자동 로그아웃 처리됨
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('문의내역을 불러오는데 실패했습니다.');
@@ -62,9 +65,14 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
       const data = await response.json();
       console.log('문의내역 응답 데이터:', data);
       
-      if (data.success && data.data && Array.isArray(data.data)) {
+      if (data.success && data.data && data.data.supports && Array.isArray(data.data.supports)) {
+        console.log('문의내역 배열:', data.data.supports);
+        setInquiries(data.data.supports);
+      } else if (data.success && data.data && Array.isArray(data.data)) {
+        console.log('문의내역 배열 (직접):', data.data);
         setInquiries(data.data);
       } else if (Array.isArray(data)) {
+        console.log('문의내역 배열 (루트):', data);
         setInquiries(data);
       } else {
         console.warn('예상하지 못한 응답 구조:', data);
@@ -230,16 +238,12 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
                       
                       <div className="inquiry-content">
                         <h3 className="inquiry-title">{inquiry.title}</h3>
-                        <p className="inquiry-preview">
-                          {inquiry.content.length > 100 
-                            ? `${inquiry.content.substring(0, 100)}...` 
-                            : inquiry.content
-                          }
-                        </p>
                       </div>
                       
                       <div className="inquiry-footer">
-                        <span className="inquiry-author">👤 {inquiry.user.name}</span>
+                        <div className="inquiry-author-info">
+                          <span className="inquiry-author">👤 {inquiry.name}</span>
+                        </div>
                         {inquiry.file && (
                           <span className="file-attached">📎 파일첨부</span>
                         )}
@@ -277,7 +281,15 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
                 </div>
                 <div className="info-item">
                   <span className="info-label">작성자:</span>
-                  <span className="info-value">{selectedInquiry.user.name}</span>
+                  <span className="info-value">{selectedInquiry.name}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">전화번호:</span>
+                  <span className="info-value">{selectedInquiry.mobile}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">이메일:</span>
+                  <span className="info-value">{selectedInquiry.email}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">작성일:</span>

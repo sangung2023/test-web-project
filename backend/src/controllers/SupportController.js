@@ -9,8 +9,15 @@ export class SupportController {
   // 문의 생성
   createSupport = async (req, res) => {
     try {
+      console.log('=== 문의 생성 요청 시작 ===');
+      console.log('요청 헤더:', req.headers);
+      console.log('요청 body:', req.body);
+      console.log('파일 정보:', req.file);
+      console.log('사용자 정보:', req.user);
+      
       const userId = req.user?.userId;
       if (!userId) {
+        console.log('인증 실패: userId 없음');
         return res.status(401).json({
           success: false,
           message: '인증이 필요합니다.'
@@ -28,10 +35,18 @@ export class SupportController {
         file: req.file ? req.file.filename : null
       };
 
+      console.log('추출된 데이터:', supportData);
+      console.log('사용자 ID:', userId);
+
       const result = await this.supportService.createSupport(supportData, userId);
       
+      console.log('문의 생성 성공:', result);
       res.status(201).json(result);
     } catch (error) {
+      console.error('=== 문의 생성 오류 ===');
+      console.error('오류 타입:', error.constructor.name);
+      console.error('오류 메시지:', error.message);
+      console.error('오류 스택:', error.stack);
       this.handleError(error, res);
     }
   };
@@ -117,6 +132,7 @@ export class SupportController {
   // 에러 처리
   handleError = (error, res) => {
     console.error('SupportController Error:', error);
+    console.error('Error stack:', error.stack);
 
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({
@@ -126,10 +142,30 @@ export class SupportController {
       });
     }
 
+    // 데이터베이스 연결 오류
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      return res.status(500).json({
+        success: false,
+        message: '데이터베이스 연결에 실패했습니다.',
+        status: 'error'
+      });
+    }
+
+    // Prisma 오류
+    if (error.code && error.code.startsWith('P')) {
+      console.error('Prisma Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: '데이터베이스 오류가 발생했습니다.',
+        status: 'error'
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: '서버 내부 오류가 발생했습니다.',
-      status: 'error'
+      status: 'error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   };
 }

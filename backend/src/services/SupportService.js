@@ -19,20 +19,30 @@ export class SupportService {
   // 문의 생성
   async createSupport(supportData, userId) {
     try {
+      console.log('SupportService.createSupport 시작:', { supportData, userId });
+      
       const createSupportDTO = new CreateSupportDTO({ ...supportData, userId });
+      console.log('CreateSupportDTO 생성됨:', createSupportDTO);
+      
       const validationErrors = createSupportDTO.validate();
+      console.log('Validation 결과:', validationErrors);
       
       if (validationErrors.length > 0) {
         throw new ValidationError(validationErrors.join(', '));
       }
 
+      console.log('Repository.create 호출 전');
       const support = await this.supportRepository.create(createSupportDTO);
+      console.log('Repository.create 성공:', support);
 
       return {
         success: true,
         data: {
           supportId: support.supportId,
           userId: support.userId,
+          name: support.name,
+          mobile: support.mobile,
+          email: support.email,
           title: support.title,
           category: this.mapCategoryToKorean(support.category),
           content: support.content,
@@ -51,16 +61,25 @@ export class SupportService {
   // 문의 목록 조회
   async getSupports(page = 1, limit = 10, userId = null) {
     try {
+      console.log('SupportService.getSupports 시작:', { page, limit, userId });
+      
       const offset = (page - 1) * limit;
       const supports = await this.supportRepository.findAll(offset, limit, userId);
       const totalCount = await this.supportRepository.count(userId);
 
-      return {
+      console.log('조회된 문의 수:', supports.length);
+      console.log('총 문의 수:', totalCount);
+      console.log('문의 데이터:', supports);
+
+      const result = {
         success: true,
         data: {
           supports: supports.map(support => ({
             supportId: support.supportId,
             userId: support.userId,
+            name: support.name,
+            mobile: support.mobile,
+            email: support.email,
             title: support.title,
             category: this.mapCategoryToKorean(support.category),
             content: support.content,
@@ -79,6 +98,9 @@ export class SupportService {
           }
         }
       };
+      
+      console.log('반환할 결과:', result);
+      return result;
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -105,6 +127,9 @@ export class SupportService {
         data: {
           supportId: support.supportId,
           userId: support.userId,
+          name: support.name,
+          mobile: support.mobile,
+          email: support.email,
           title: support.title,
           category: this.mapCategoryToKorean(support.category),
           content: support.content,
@@ -152,6 +177,9 @@ export class SupportService {
         data: {
           supportId: updatedSupport.supportId,
           userId: updatedSupport.userId,
+          name: updatedSupport.name,
+          mobile: updatedSupport.mobile,
+          email: updatedSupport.email,
           title: updatedSupport.title,
           category: this.mapCategoryToKorean(updatedSupport.category),
           content: updatedSupport.content,
