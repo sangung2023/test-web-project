@@ -33,7 +33,9 @@ model Board {
   userId    Int      // 사용자 아이디 (Foreign Key)
   title     String   @db.VarChar(255) // 게시판 제목
   content   String   @db.Text // 게시글 내용
-  image     String?  @db.Text // 게시글 사진 (nullable)
+  image     String?  @db.Text // 게시글 사진 URL (nullable)
+  imageName String?  @db.VarChar(255) // Firebase Storage 이미지명 (nullable)
+  originalImageName String? @db.VarChar(255) // 원본 이미지명 (nullable)
   createdAt DateTime @default(now()) @map("created_at") // 작성 시간
   updatedAt DateTime @updatedAt @map("updated_at") // 수정 시간
   
@@ -53,7 +55,9 @@ model Support {
   title     String          @db.VarChar(255) // 문의 제목
   category  SupportCategory // 카테고리 (ENUM, NOT NULL)
   content   String          @db.Text // 문의 내용
-  file      String?         @db.VarChar(255) // 첨부파일 (nullable)
+  file      String?         @db.Text // 첨부파일 URL (nullable)
+  fileName  String?         @db.VarChar(255) // Firebase Storage 파일명 (nullable)
+  originalFileName String?  @db.VarChar(255) // 원본 파일명 (nullable)
   createdAt DateTime        @default(now()) @map("created_at") // 작성 날짜
   updatedAt DateTime        @updatedAt @map("updated_at") // 수정 날짜
   

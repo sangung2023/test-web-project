@@ -1,5 +1,6 @@
 import { BoardService } from '../services/BoardService.js';
 import { AppError } from '../exceptions/AppError.js';
+import { uploadToFirebase } from '../middlewares/firebaseUpload.js';
 
 export class BoardController {
   constructor() {
@@ -17,7 +18,13 @@ export class BoardController {
         });
       }
 
-      const result = await this.boardService.createBoard(req.body, userId);
+      // 프론트엔드에서 이미 업로드된 이미지 정보를 사용
+      const boardData = {
+        ...req.body,
+        // 이미지 정보는 프론트엔드에서 전송됨
+      };
+
+      const result = await this.boardService.createBoard(boardData, userId);
       
       res.status(201).json(result);
     } catch (error) {

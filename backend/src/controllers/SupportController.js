@@ -1,5 +1,6 @@
 import { SupportService } from '../services/SupportService.js';
 import { AppError } from '../exceptions/AppError.js';
+import { uploadToFirebase } from '../middlewares/firebaseUpload.js';
 
 export class SupportController {
   constructor() {
@@ -24,7 +25,7 @@ export class SupportController {
         });
       }
 
-      // FormData에서 데이터 추출
+      // 프론트엔드에서 이미 업로드된 파일 정보를 사용
       const supportData = {
         category: req.body.category,
         name: req.body.name,
@@ -32,7 +33,9 @@ export class SupportController {
         email: req.body.email,
         subject: req.body.subject,
         content: req.body.content,
-        file: req.file ? req.file.filename : null
+        file: req.body.file,
+        fileName: req.body.fileName,
+        originalFileName: req.body.originalFileName
       };
 
       console.log('추출된 데이터:', supportData);

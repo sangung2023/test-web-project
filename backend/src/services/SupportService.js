@@ -47,6 +47,8 @@ export class SupportService {
           category: this.mapCategoryToKorean(support.category),
           content: support.content,
           file: support.file,
+          fileName: support.fileName,
+          originalFileName: support.originalFileName,
           createdAt: support.createdAt
         }
       };
@@ -84,6 +86,8 @@ export class SupportService {
             category: this.mapCategoryToKorean(support.category),
             content: support.content,
             file: support.file,
+            fileName: support.fileName,
+            originalFileName: support.originalFileName,
             createdAt: support.createdAt,
             user: support.user ? {
               name: support.user.name,
@@ -134,6 +138,8 @@ export class SupportService {
           category: this.mapCategoryToKorean(support.category),
           content: support.content,
           file: support.file,
+          fileName: support.fileName,
+          originalFileName: support.originalFileName,
           createdAt: support.createdAt,
           updatedAt: support.updatedAt,
           user: support.user ? {

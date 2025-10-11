@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import { getAuthHeaders, getAccessToken, isLoggedIn } from './utils/cookieUtils.js';
+import { uploadFileToFirebase, validateFileSize, validateFileType } from './utils/firebaseUpload.js';
+import { API_ENDPOINTS } from './config/api.js';
 import './InquiryPage.css';
 
 interface InquiryPageProps {
@@ -47,35 +49,46 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
       console.log('문의 데이터:', inquiry);
       console.log('인증 헤더:', getAuthHeaders());
       
-      const formData = new FormData();
-      formData.append('category', inquiry.category);
-      formData.append('name', inquiry.name);
-      formData.append('mobile', inquiry.mobile);
-      formData.append('email', inquiry.email);
-      formData.append('subject', inquiry.subject);
-      formData.append('content', inquiry.content);
+      // 파일이 있으면 Firebase Storage에 먼저 업로드
+      let fileInfo = null;
       if (inquiry.file) {
-        formData.append('file', inquiry.file);
+        try {
+          console.log('Firebase에 파일 업로드 시작...');
+          fileInfo = await uploadFileToFirebase(inquiry.file, 'support-files');
+          console.log('파일 업로드 성공:', fileInfo);
+        } catch (uploadError) {
+          console.error('파일 업로드 실패:', uploadError);
+          setError('파일 업로드에 실패했습니다.');
+          return;
+        }
       }
 
-      console.log('FormData 내용:');
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+      // JSON 데이터로 전송
+      const supportData = {
+        category: inquiry.category,
+        name: inquiry.name,
+        mobile: inquiry.mobile,
+        email: inquiry.email,
+        subject: inquiry.subject,
+        content: inquiry.content,
+        file: fileInfo ? fileInfo.url : null,
+        fileName: fileInfo ? fileInfo.fileName : null,
+        originalFileName: fileInfo ? fileInfo.originalName : null
+      };
 
-      // FormData는 직접 fetch로 처리
+      console.log('전송할 데이터:', supportData);
+
       const token = getAccessToken();
       const headers: any = {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       };
       
-      console.log('FormData 직접 전송:', { headers, formData });
-      
-      const response = await fetch('http://localhost:5000/api/supports', {
+      const response = await fetch(API_ENDPOINTS.SUPPORTS, {
         method: 'POST',
         credentials: 'include',
         headers,
-        body: formData
+        body: JSON.stringify(supportData)
       });
       
       if (!response.ok) {
@@ -110,7 +123,22 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
   // 파일 선택
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setInquiry({ ...inquiry, file: e.target.files[0] });
+      const file = e.target.files[0];
+      
+      // 파일 크기 검증 (50MB)
+      if (!validateFileSize(file, 50 * 1024 * 1024)) {
+        setError('파일 크기가 너무 큽니다. (최대 50MB)');
+        return;
+      }
+      
+      // 파일 타입 검증
+      if (!validateFileType(file)) {
+        setError('지원하지 않는 파일 형식입니다. (jpeg, jpg, png, gif, pdf, doc, docx, txt만 허용)');
+        return;
+      }
+      
+      setInquiry({ ...inquiry, file: file });
+      setError(''); // 에러 메시지 초기화
     }
   };
 
@@ -155,21 +183,22 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
           <p>궁금한 점이 있으시면 언제든 문의해주세요!</p>
         </div>
 
+        <div className="inquiry-tabs">
+          <button 
+            className="tab-button active"
+            onClick={() => navigate('/inquiry')}
+          >
+            고객문의
+          </button>
+          <button 
+            className="tab-button"
+            onClick={() => navigate('/inquiry-history')}
+          >
+            문의내역
+          </button>
+        </div>
+
         <div className="inquiry-content">
-          <div className="inquiry-tabs">
-            <button 
-              className="tab-button active"
-              onClick={() => navigate('/inquiry')}
-            >
-              고객문의
-            </button>
-            <button 
-              className="tab-button"
-              onClick={() => navigate('/inquiry-history')}
-            >
-              문의내역
-            </button>
-          </div>
 
           <div className="inquiry-form-container">
             <form className="inquiry-form" onSubmit={handleSubmit}>

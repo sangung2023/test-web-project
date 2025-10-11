@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import { getAuthHeaders, isLoggedIn, clearAllAuthCookies } from './utils/cookieUtils.js';
 import { apiGet, apiPost, apiPut, apiDelete } from './utils/apiUtils.js';
+import { uploadFileToFirebase, validateFileSize, validateFileType } from './utils/firebaseUpload.js';
+import { API_ENDPOINTS } from './config/api.js';
 import './BoardPage.css';
 
 interface BoardPost {
@@ -35,15 +37,20 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
-    image: ''
+    image: null as File | null
   });
+  const [imageInfo, setImageInfo] = useState(null as {
+    url: string;
+    fileName: string;
+    originalName: string;
+  } | null);
   const [selectedPost, setSelectedPost] = useState(null as BoardPost | null);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editPost, setEditPost] = useState({
     title: '',
     content: '',
-    image: ''
+    image: null as File | null
   });
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -103,7 +110,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
   // 현재 사용자 정보 조회
   const fetchCurrentUser = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch(API_ENDPOINTS.PROFILE, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -126,7 +133,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await apiGet('http://localhost:5000/api/boards');
+      const response = await apiGet(API_ENDPOINTS.BOARDS);
 
       if (!response) {
         // 토큰 만료로 인한 자동 로그아웃 처리됨
@@ -164,13 +171,37 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:5000/api/boards', {
+      // 이미지가 있으면 Firebase Storage에 먼저 업로드
+      let uploadedImageInfo: any = null;
+      if (newPost.image) {
+        try {
+          console.log('Firebase에 이미지 업로드 시작...');
+          uploadedImageInfo = await uploadFileToFirebase(newPost.image, 'board-images');
+          console.log('이미지 업로드 성공:', uploadedImageInfo);
+          console.log('저장될 이미지 URL:', uploadedImageInfo.url);
+        } catch (uploadError) {
+          console.error('이미지 업로드 실패:', uploadError);
+          setError('이미지 업로드에 실패했습니다.');
+          return;
+        }
+      }
+
+      const boardData = {
+        title: newPost.title,
+        content: newPost.content,
+        image: uploadedImageInfo ? uploadedImageInfo.url : null,
+        imageName: uploadedImageInfo ? uploadedImageInfo.fileName : null,
+        originalImageName: uploadedImageInfo ? uploadedImageInfo.originalName : null
+      };
+
+      const response = await fetch(API_ENDPOINTS.BOARDS, {
         method: 'POST',
         credentials: 'include',
         headers: {
-          ...getAuthHeaders()
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
         } as any,
-        body: JSON.stringify(newPost)
+        body: JSON.stringify(boardData)
       });
 
       if (!response.ok) {
@@ -181,7 +212,8 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
       console.log('게시글 작성 성공:', data);
       
       // 폼 초기화 및 목록 새로고침
-      setNewPost({ title: '', content: '', image: '' });
+      setNewPost({ title: '', content: '', image: null });
+      setImageInfo(null);
       setShowWriteForm(false);
       
       // 로그인 상태 재확인
@@ -209,7 +241,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     }
 
     try {
-      const response = await apiDelete(`http://localhost:5000/api/boards/${boardId}`);
+      const response = await apiDelete(`${API_ENDPOINTS.BOARDS}/${boardId}`);
 
       if (!response) {
         // 토큰 만료로 인한 자동 로그아웃 처리됨
@@ -315,12 +347,39 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     setSelectedPost(null);
   };
 
+  // 파일 선택 핸들러
+  const handleFileChange = (e: any, isEdit: boolean = false) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // 파일 크기 검증 (50MB)
+      if (!validateFileSize(file, 50 * 1024 * 1024)) {
+        setError('파일 크기가 너무 큽니다. (최대 50MB)');
+        return;
+      }
+      
+      // 파일 타입 검증 (이미지만 허용)
+      const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!imageTypes.includes(file.type)) {
+        setError('이미지 파일만 업로드 가능합니다. (jpeg, jpg, png, gif)');
+        return;
+      }
+      
+      if (isEdit) {
+        setEditPost({ ...editPost, image: file });
+      } else {
+        setNewPost({ ...newPost, image: file });
+      }
+      setError(''); // 에러 메시지 초기화
+    }
+  };
+
   // 수정 모달 열기
   const handleEditClick = (post: BoardPost) => {
     setEditPost({
       title: post.title,
       content: post.content,
-      image: post.image || ''
+      image: null
     });
     setShowEditModal(true);
   };
@@ -328,7 +387,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
   // 수정 모달 닫기
   const handleCloseEditModal = () => {
     setShowEditModal(false);
-    setEditPost({ title: '', content: '', image: '' });
+    setEditPost({ title: '', content: '', image: null });
   };
 
   // 게시글 수정
@@ -338,13 +397,36 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     if (!selectedPost) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/boards/${selectedPost.boardId}`, {
+      // 새 이미지가 있으면 Firebase Storage에 먼저 업로드
+      let uploadedImageInfo: any = null;
+      if (editPost.image) {
+        try {
+          console.log('Firebase에 수정 이미지 업로드 시작...');
+          uploadedImageInfo = await uploadFileToFirebase(editPost.image, 'board-images');
+          console.log('수정 이미지 업로드 성공:', uploadedImageInfo);
+        } catch (uploadError) {
+          console.error('수정 이미지 업로드 실패:', uploadError);
+          setError('이미지 업로드에 실패했습니다.');
+          return;
+        }
+      }
+
+      const boardData = {
+        title: editPost.title,
+        content: editPost.content,
+        image: uploadedImageInfo ? uploadedImageInfo.url : selectedPost.image, // 새 이미지가 없으면 기존 이미지 유지
+        imageName: uploadedImageInfo ? uploadedImageInfo.fileName : null,
+        originalImageName: uploadedImageInfo ? uploadedImageInfo.originalName : null
+      };
+
+      const response = await fetch(`${API_ENDPOINTS.BOARDS}/${selectedPost.boardId}`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
-          ...getAuthHeaders()
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
         } as any,
-        body: JSON.stringify(editPost)
+        body: JSON.stringify(boardData)
       });
 
       if (!response.ok) {
@@ -387,7 +469,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
       
       // 백엔드 로그아웃 API 호출 (선택사항)
       try {
-        await fetch('http://localhost:5000/api/users/logout', {
+        await fetch(API_ENDPOINTS.LOGIN.replace('/login', '/logout'), {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -477,83 +559,33 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
               </div>
               
               <div className="form-group">
-                <label htmlFor="image">이미지 URL (선택사항)</label>
-                <input
-                  type="text"
-                  id="image"
-                  value={newPost.image}
-                  onChange={(e) => {
-                    const url = e.target.value;
-                    setNewPost({ ...newPost, image: url });
-                    if (url) {
-                      setImageLoading(true);
-                    }
-                  }}
-                  placeholder="이미지 URL을 입력하세요 (예: https://example.com/image.jpg)"
-                />
-                <div className="url-help">
-                  <p>💡 팁: http:// 또는 https://로 시작하는 완전한 URL을 입력하세요</p>
+                <label htmlFor="image">이미지 업로드 (선택사항)</label>
+                <div className="file-group">
+                  <input
+                    type="file"
+                    id="image"
+                    accept="image/jpeg,image/jpg,image/png,image/gif"
+                    onChange={(e) => handleFileChange(e, false)}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('image')?.click()}
+                    className="file-button"
+                  >
+                    이미지 선택
+                  </button>
+                  <span className="file-name">
+                    {newPost.image ? newPost.image.name : '선택된 이미지 없음'}
+                  </span>
                 </div>
                 {newPost.image && (
                   <div className="image-preview">
-                    {imageLoading && (
-                      <div className="image-loading">
-                        <div className="loading-spinner"></div>
-                        <p>🔄 이미지 로딩 중...</p>
-                      </div>
-                    )}
                     <img 
-                      src={getImageUrl(newPost.image)} 
+                      src={URL.createObjectURL(newPost.image)} 
                       alt="미리보기"
-                      style={{display: 'none'}}
-                      onLoad={(e) => {
-                        console.log('✅ 이미지 로드 성공:', {
-                          originalUrl: newPost.image,
-                          processedUrl: getImageUrl(newPost.image),
-                          isDataImage: isDataImageUrl(newPost.image)
-                        });
-                        e.currentTarget.style.display = 'block';
-                        setImageLoading(false);
-                        setImageError(false);
-                        const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (errorDiv) errorDiv.style.display = 'none';
-                      }}
-                      onError={(e) => {
-                        console.error('❌ 이미지 로드 실패:', {
-                          originalUrl: newPost.image,
-                          processedUrl: getImageUrl(newPost.image),
-                          isDataImage: isDataImageUrl(newPost.image),
-                          error: e
-                        });
-                        e.currentTarget.style.display = 'none';
-                        setImageLoading(false);
-                        setImageError(true);
-                        const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (errorDiv) errorDiv.style.display = 'block';
-                      }}
+                      style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover' }}
                     />
-                    <div className="image-error" style={{display: 'none'}}>
-                      <p>⚠️ 이미지를 불러올 수 없습니다</p>
-                      <p>URL: {newPost.image}</p>
-                      <p>처리된 URL: {getImageUrl(newPost.image)}</p>
-                      <div className="error-solutions">
-                        <p>💡 해결 방법:</p>
-                        <ul>
-                          <li><strong>구글 이미지:</strong> 이미지 주소를 우클릭 → "이미지 주소 복사" 사용</li>
-                          <li><strong>다른 사이트:</strong> 이미지를 우클릭 → "이미지 주소 복사" 사용</li>
-                          <li><strong>직접 업로드:</strong> <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a> 같은 이미지 호스팅 서비스 사용</li>
-                          <li><strong>다른 이미지:</strong> 다른 이미지 URL을 시도해보세요</li>
-                        </ul>
-                      </div>
-                      <div className="alternative-services">
-                        <p>🖼️ 추천 이미지 호스팅 서비스:</p>
-                        <div className="service-links">
-                          <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a>
-                          <a href="https://postimages.org" target="_blank" rel="noopener noreferrer">PostImages</a>
-                          <a href="https://imgbb.com" target="_blank" rel="noopener noreferrer">ImgBB</a>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
@@ -775,72 +807,43 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
               </div>
 
               <div className="form-group">
-                <label htmlFor="edit-image">🖼️ 이미지 URL (선택 사항)</label>
-                <input
-                  type="text"
-                  id="edit-image"
-                  value={editPost.image}
-                  onChange={(e) => {
-                    const url = e.target.value;
-                    setEditPost({ ...editPost, image: url });
-                    if (url) {
-                      setImageLoading(true);
-                    }
-                  }}
-                  placeholder="이미지 URL을 입력하세요 (예: https://example.com/image.jpg)"
-                />
-                <div className="url-help">
-                  <p>💡 팁: http:// 또는 https://로 시작하는 완전한 URL을 입력하세요</p>
+                <label htmlFor="edit-image">🖼️ 이미지 업로드 (선택 사항)</label>
+                <div className="file-group">
+                  <input
+                    type="file"
+                    id="edit-image"
+                    accept="image/jpeg,image/jpg,image/png,image/gif"
+                    onChange={(e) => handleFileChange(e, true)}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('edit-image')?.click()}
+                    className="file-button"
+                  >
+                    새 이미지 선택
+                  </button>
+                  <span className="file-name">
+                    {editPost.image ? editPost.image.name : '기존 이미지 유지'}
+                  </span>
                 </div>
                 {editPost.image && (
                   <div className="image-preview">
-                    {imageLoading && (
-                      <div className="image-loading">
-                        <div className="loading-spinner"></div>
-                        <p>🔄 이미지 로딩 중...</p>
-                      </div>
-                    )}
                     <img 
-                      src={getImageUrl(editPost.image)} 
+                      src={URL.createObjectURL(editPost.image)} 
                       alt="미리보기"
-                      style={{display: 'none'}}
-                      onLoad={(e) => {
-                        e.currentTarget.style.display = 'block';
-                        setImageLoading(false);
-                        setImageError(false);
-                        const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (errorDiv) errorDiv.style.display = 'none';
-                      }}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        setImageLoading(false);
-                        setImageError(true);
-                        const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (errorDiv) errorDiv.style.display = 'block';
-                      }}
+                      style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover' }}
                     />
-                    <div className="image-error" style={{display: 'none'}}>
-                      <p>⚠️ 이미지를 불러올 수 없습니다</p>
-                      <p>URL: {editPost.image}</p>
-                      <p>처리된 URL: {getImageUrl(editPost.image)}</p>
-                      <div className="error-solutions">
-                        <p>💡 해결 방법:</p>
-                        <ul>
-                          <li><strong>구글 이미지:</strong> 이미지 주소를 우클릭 → "이미지 주소 복사" 사용</li>
-                          <li><strong>다른 사이트:</strong> 이미지를 우클릭 → "이미지 주소 복사" 사용</li>
-                          <li><strong>직접 업로드:</strong> <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a> 같은 이미지 호스팅 서비스 사용</li>
-                          <li><strong>다른 이미지:</strong> 다른 이미지 URL을 시도해보세요</li>
-                        </ul>
-                      </div>
-                      <div className="alternative-services">
-                        <p>🖼️ 추천 이미지 호스팅 서비스:</p>
-                        <div className="service-links">
-                          <a href="https://imgur.com" target="_blank" rel="noopener noreferrer">Imgur</a>
-                          <a href="https://postimages.org" target="_blank" rel="noopener noreferrer">PostImages</a>
-                          <a href="https://imgbb.com" target="_blank" rel="noopener noreferrer">ImgBB</a>
-                        </div>
-                      </div>
-                    </div>
+                  </div>
+                )}
+                {!editPost.image && selectedPost?.image && (
+                  <div className="current-image">
+                    <p>현재 이미지:</p>
+                    <img 
+                      src={getImageUrl(selectedPost.image)} 
+                      alt="현재 이미지"
+                      style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover' }}
+                    />
                   </div>
                 )}
               </div>

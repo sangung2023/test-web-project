@@ -15,6 +15,8 @@ interface Inquiry {
   category: string;
   content: string;
   file?: string;
+  fileName?: string;
+  originalFileName?: string;
   createdAt: string;
   updatedAt: string;
   user: {
@@ -64,6 +66,20 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
 
       const data = await response.json();
       console.log('문의내역 응답 데이터:', data);
+      
+      // 파일 정보 확인 (개발용)
+      if (data.success && data.data && data.data.supports) {
+        data.data.supports.forEach((inquiry: any, index: number) => {
+          if (inquiry.file) {
+            console.log(`📎 문의 ${index + 1} 파일:`, {
+              title: inquiry.title,
+              originalFileName: inquiry.originalFileName,
+              fileName: inquiry.fileName,
+              fileUrl: inquiry.file
+            });
+          }
+        });
+      }
       
       if (data.success && data.data && data.data.supports && Array.isArray(data.data.supports)) {
         console.log('문의내역 배열:', data.data.supports);
@@ -162,21 +178,22 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
           <p>제출하신 문의내역을 확인하실 수 있습니다.</p>
         </div>
 
+        <div className="inquiry-tabs">
+          <button 
+            className="tab-button"
+            onClick={() => navigate('/inquiry')}
+          >
+            고객문의
+          </button>
+          <button 
+            className="tab-button active"
+            onClick={() => navigate('/inquiry-history')}
+          >
+            문의내역
+          </button>
+        </div>
+
         <div className="inquiry-history-content">
-          <div className="inquiry-tabs">
-            <button 
-              className="tab-button"
-              onClick={() => navigate('/inquiry')}
-            >
-              고객문의
-            </button>
-            <button 
-              className="tab-button active"
-              onClick={() => navigate('/inquiry-history')}
-            >
-              문의내역
-            </button>
-          </div>
 
           {!userLoggedIn ? (
             <div className="login-prompt">
@@ -296,10 +313,22 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
                   <span className="info-value">{formatDate(selectedInquiry.createdAt)}</span>
                 </div>
                 {selectedInquiry.file && (
-                  <div className="info-item">
-                    <span className="info-label">첨부파일:</span>
-                    <span className="info-value file-link">📎 {selectedInquiry.file}</span>
-                  </div>
+                    <div className="info-item">
+                      <span className="info-label">첨부파일:</span>
+                      <a 
+                        href={selectedInquiry.file} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="info-value file-link"
+                        style={{ 
+                          color: '#667eea', 
+                          textDecoration: 'underline',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        📎 {selectedInquiry.originalFileName || '첨부파일'}
+                      </a>
+                    </div>
                 )}
               </div>
               
