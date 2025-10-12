@@ -1,7 +1,7 @@
 import express from 'express';
 import { BoardController } from '../controllers/BoardController.js';
 import { authenticateToken } from '../middlewares/auth.js';
-import { upload, handleMulterError } from '../middlewares/firebaseUpload.js';
+import { upload, handleMulterError } from '../middlewares/upload.js';
 
 const router = express.Router();
 const boardController = new BoardController();

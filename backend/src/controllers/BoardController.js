@@ -1,6 +1,5 @@
 import { BoardService } from '../services/BoardService.js';
 import { AppError } from '../exceptions/AppError.js';
-import { uploadToFirebase } from '../middlewares/firebaseUpload.js';
 
 export class BoardController {
   constructor() {

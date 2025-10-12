@@ -12,7 +12,7 @@ const prisma = new PrismaClient({
 export const testConnection = async () => {
   try {
     await prisma.$connect();
-    console.log('✅ AWS RDS 데이터베이스 연결이 성공적으로 설정되었습니다.');
+    console.log('✅ 로컬 MySQL 데이터베이스 연결이 성공적으로 설정되었습니다.');
   } catch (error) {
     console.error('❌ 데이터베이스 연결에 실패했습니다:', error.message);
     throw error;

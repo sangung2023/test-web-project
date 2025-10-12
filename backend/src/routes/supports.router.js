@@ -1,7 +1,7 @@
 import express from 'express';
 import { SupportController } from '../controllers/SupportController.js';
 import { authenticateToken } from '../middlewares/auth.js';
-import { upload, handleMulterError } from '../middlewares/firebaseUpload.js';
+import { upload, handleMulterError } from '../middlewares/upload.js';
 
 const router = express.Router();
 const supportController = new SupportController();

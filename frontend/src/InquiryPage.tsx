@@ -49,12 +49,12 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
       console.log('문의 데이터:', inquiry);
       console.log('인증 헤더:', getAuthHeaders());
       
-      // 파일이 있으면 Firebase Storage에 먼저 업로드
+      // 파일이 있으면 로컬 서버에 먼저 업로드
       let fileInfo = null;
       if (inquiry.file) {
         try {
-          console.log('Firebase에 파일 업로드 시작...');
-          fileInfo = await uploadFileToFirebase(inquiry.file, 'support-files');
+          console.log('로컬 서버에 파일 업로드 시작...');
+          fileInfo = await uploadFileToLocal(inquiry.file, '/api/upload');
           console.log('파일 업로드 성공:', fileInfo);
         } catch (uploadError) {
           console.error('파일 업로드 실패:', uploadError);

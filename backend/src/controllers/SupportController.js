@@ -1,6 +1,5 @@
 import { SupportService } from '../services/SupportService.js';
 import { AppError } from '../exceptions/AppError.js';
-import { uploadToFirebase } from '../middlewares/firebaseUpload.js';
 
 export class SupportController {
   constructor() {

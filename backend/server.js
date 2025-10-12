@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import usersRouter from './src/routes/users.router.js';
 import boardsRouter from './src/routes/boards.router.js';
 import supportsRouter from './src/routes/supports.router.js';
+import uploadRouter from './src/routes/upload.router.js';
 import { testConnection, disconnectDatabase } from './src/config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -51,6 +52,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/users', usersRouter);
 app.use('/api/boards', boardsRouter);
 app.use('/api/supports', supportsRouter);
+app.use('/api/upload', uploadRouter);
 
 // 404 에러 핸들러
 app.use('*', (req, res) => {

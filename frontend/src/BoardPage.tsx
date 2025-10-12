@@ -171,12 +171,12 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     e.preventDefault();
     
     try {
-      // 이미지가 있으면 Firebase Storage에 먼저 업로드
+      // 이미지가 있으면 로컬 서버에 먼저 업로드
       let uploadedImageInfo: any = null;
       if (newPost.image) {
         try {
-          console.log('Firebase에 이미지 업로드 시작...');
-          uploadedImageInfo = await uploadFileToFirebase(newPost.image, 'board-images');
+          console.log('로컬 서버에 이미지 업로드 시작...');
+          uploadedImageInfo = await uploadFileToLocal(newPost.image, '/api/upload');
           console.log('이미지 업로드 성공:', uploadedImageInfo);
           console.log('저장될 이미지 URL:', uploadedImageInfo.url);
         } catch (uploadError) {
