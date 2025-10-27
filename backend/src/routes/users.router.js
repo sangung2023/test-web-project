@@ -11,6 +11,9 @@ router.post('/signup', userController.createUser);
 // 로그인
 router.post('/login', userController.loginUser);
 
+// 관리자 계정 생성
+router.post('/admin/create', userController.createAdmin);
+
 // 프로필 조회 (인증 필요) - 본인 정보 조회
 router.get('/profile', authenticateToken, userController.getMyProfile);
 

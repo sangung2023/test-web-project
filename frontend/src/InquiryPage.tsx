@@ -1,10 +1,21 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import { getAuthHeaders, getAccessToken, isLoggedIn } from './utils/cookieUtils.js';
-import { uploadFileToFirebase, validateFileSize, validateFileType } from './utils/firebaseUpload.js';
+import { uploadFileToLocal } from './utils/localUpload.js';
 import { API_ENDPOINTS } from './config/api.js';
 import './InquiryPage.css';
+
+// 파일 크기 검증 함수 (최대 크기 바이트 단위)
+function validateFileSize(file: File, maxSize: number) {
+  return file.size <= maxSize;
+}
+
+// 파일 타입 검증 함수 (모든 파일 타입 허용)
+function validateFileType(file: File) {
+  return true; // 모든 파일 타입 허용
+}
 
 interface InquiryPageProps {
   isLoggedIn?: boolean;
@@ -15,6 +26,11 @@ interface InquiryPageProps {
 const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }) => {
   const navigate = useNavigate();
   const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string>('USER');
+  const [allInquiries, setAllInquiries] = useState<any[]>([]);
+  const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [newComment, setNewComment] = useState('');
   const [inquiry, setInquiry] = useState({
     category: '프로젝트 관련 질문',
     name: '',
@@ -27,11 +43,126 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // 로그인 상태 확인
+  // 로그인 상태 및 사용자 역할 확인
   React.useEffect(() => {
     const loginStatus = isLoggedIn();
-    setUserLoggedIn(loginStatus);
+    setUserLoggedIn(!!loginStatus);
+    
+    if (loginStatus) {
+      fetchUserRole();
+    }
   }, [propIsLoggedIn]);
+
+  // 사용자 역할 조회
+  const fetchUserRole = async () => {
+    try {
+      const token = getAccessToken();
+      if (!token) return;
+
+      const response = await fetch('/api/users/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        const role = userData.data.role || 'USER';
+        setUserRole(role);
+        
+        // 관리자인 경우 모든 문의 조회
+        if (role === 'ADMIN') {
+          fetchAllInquiries();
+        }
+      } else {
+        console.error('사용자 정보 조회 실패:', response.status);
+      }
+    } catch (error) {
+      console.error('사용자 역할 조회 실패:', error);
+    }
+  };
+
+  // 모든 문의 조회 (관리자용)
+  const fetchAllInquiries = async () => {
+    try {
+      const token = getAccessToken();
+      if (!token) return;
+
+      const response = await fetch('/api/supports/admin/all', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAllInquiries(data.data?.supports || []);
+      } else {
+        console.error('문의 조회 실패:', response.status);
+      }
+    } catch (error) {
+      console.error('문의 조회 오류:', error);
+    }
+  };
+
+  // 댓글 모달 열기
+  const openCommentModal = (inquiry: any) => {
+    setSelectedInquiry(inquiry);
+    setShowCommentModal(true);
+    setNewComment('');
+  };
+
+  // 댓글 모달 닫기
+  const closeCommentModal = () => {
+    setShowCommentModal(false);
+    setSelectedInquiry(null);
+    setNewComment('');
+  };
+
+  // 댓글 작성
+  const handleSubmitComment = async () => {
+    if (!newComment.trim() || !selectedInquiry) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const token = getAccessToken();
+      if (!token) return;
+
+      const response = await fetch('/api/support-comments', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          supportId: selectedInquiry.supportId,
+          content: newComment
+        })
+      });
+
+      if (response.ok) {
+        alert('댓글이 성공적으로 작성되었습니다.');
+        closeCommentModal();
+        // 문의 목록 새로고침
+        fetchAllInquiries();
+      } else {
+        const errorData = await response.json();
+        alert(`댓글 작성 실패: ${errorData.message || '알 수 없는 오류'}`);
+      }
+    } catch (error) {
+      console.error('댓글 작성 오류:', error);
+      alert('댓글 작성 중 오류가 발생했습니다.');
+    }
+  };
 
   // 문의 제출
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +181,7 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
       console.log('인증 헤더:', getAuthHeaders());
       
       // 파일이 있으면 로컬 서버에 먼저 업로드
-      let fileInfo = null;
+      let fileInfo: { url: string; fileName: string; originalName: string } | null = null;
       if (inquiry.file) {
         try {
           console.log('로컬 서버에 파일 업로드 시작...');
@@ -125,15 +256,15 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
-      // 파일 크기 검증 (50MB)
-      if (!validateFileSize(file, 50 * 1024 * 1024)) {
-        setError('파일 크기가 너무 큽니다. (최대 50MB)');
+      // 파일 크기 검증 (100MB)
+      if (!validateFileSize(file, 100 * 1024 * 1024)) {
+        setError('파일 크기가 너무 큽니다. (최대 100MB)');
         return;
       }
       
-      // 파일 타입 검증
+      // 파일 타입 검증 (모든 파일 타입 허용)
       if (!validateFileType(file)) {
-        setError('지원하지 않는 파일 형식입니다. (jpeg, jpg, png, gif, pdf, doc, docx, txt만 허용)');
+        setError('파일 형식에 문제가 있습니다.');
         return;
       }
       
@@ -152,7 +283,7 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
       
       // 백엔드 로그아웃 API 호출
       try {
-        await fetch('http://localhost:5000/api/users/logout', {
+        await fetch('/api/users/logout', {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -179,29 +310,119 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
       
       <div className="inquiry-container">
         <div className="inquiry-header">
-          <h1>📞 고객 문의</h1>
-          <p>궁금한 점이 있으시면 언제든 문의해주세요!</p>
+          {userRole === 'ADMIN' ? (
+            <>
+              <h1>🛡️ 관리자 패널</h1>
+              <p>모든 고객 문의를 관리하고 답변하세요!</p>
+            </>
+          ) : (
+            <>
+              <h1>📞 고객 문의</h1>
+              <p>궁금한 점이 있으시면 언제든 문의해주세요!</p>
+            </>
+          )}
         </div>
 
-        <div className="inquiry-tabs">
-          <button 
-            className="tab-button active"
-            onClick={() => navigate('/inquiry')}
-          >
-            고객문의
-          </button>
-          <button 
-            className="tab-button"
-            onClick={() => navigate('/inquiry-history')}
-          >
-            문의내역
-          </button>
-        </div>
+        {userRole !== 'ADMIN' && (
+          <div className="inquiry-tabs">
+            <button 
+              className="tab-button active"
+              onClick={() => navigate('/inquiry')}
+            >
+              고객문의
+            </button>
+            <button 
+              className="tab-button"
+              onClick={() => navigate('/inquiry-history')}
+            >
+              문의내역
+            </button>
+          </div>
+        )}
 
         <div className="inquiry-content">
+          {userRole === 'ADMIN' ? (
+            <div className="admin-panel">
+              <div className="admin-panel-header">
+                <h2>📋 모든 문의 내역</h2>
+                <button 
+                  className="refresh-button"
+                  onClick={fetchAllInquiries}
+                >
+                  🔄 새로고침
+                </button>
+              </div>
+              
+              <div className="admin-inquiries-list">
+                {allInquiries.length > 0 ? (
+                  allInquiries.map((inquiry) => (
+                    <div key={inquiry.supportId} className="admin-inquiry-item">
+                      <div className="inquiry-header">
+                        <div className="inquiry-info">
+                          <h3>{inquiry.subject}</h3>
+                          <div className="inquiry-meta">
+                            <span>👤 {inquiry.user.name}</span>
+                            <span>📧 {inquiry.user.email}</span>
+                            <span>📅 {new Date(inquiry.createdAt).toLocaleDateString()}</span>
+                            <span className="status-badge">⏳ 대기중</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="inquiry-content">
+                        <p><strong>분류:</strong> {inquiry.category}</p>
+                        <p><strong>내용:</strong></p>
+                        <p>{inquiry.content}</p>
+                        {inquiry.file && (
+                          <div className="inquiry-file">
+                            📎 첨부파일: {inquiry.originalFileName}
+                          </div>
+                        )}
+                      </div>
 
-          <div className="inquiry-form-container">
-            <form className="inquiry-form" onSubmit={handleSubmit}>
+                      {/* 댓글 섹션 */}
+                      {inquiry.comments && inquiry.comments.length > 0 && (
+                        <div className="comments-section">
+                          <h4>💬 관리자 댓글</h4>
+                          {inquiry.comments.map((comment: any) => (
+                            <div key={comment.commentId} className="comment-item">
+                              <div className="comment-header">
+                                <span className="comment-author">👤 {comment.user.name}</span>
+                                <span className="comment-date">
+                                  📅 {new Date(comment.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <div className="comment-content">
+                                <p>{comment.content}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="admin-actions">
+                        <button 
+                          className="reply-button"
+                          onClick={() => openCommentModal(inquiry)}
+                        >
+                          💬 답변하기
+                        </button>
+                        <button className="status-button">
+                          ✅ 처리완료
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="empty-inquiries">
+                    <p>📭 아직 문의가 없습니다.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="inquiry-form-container">
+              <form className="inquiry-form" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="category">
                   <span className="icon">👤</span>
@@ -391,9 +612,63 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
               </div>
             </form>
           </div>
+          )}
         </div>
 
       </div>
+
+      {/* 댓글 작성 모달 */}
+      {showCommentModal && selectedInquiry && (
+        <div className="comment-modal-overlay">
+          <div className="comment-modal">
+            <div className="comment-modal-header">
+              <h3>💬 답변 작성</h3>
+              <button 
+                className="close-button"
+                onClick={closeCommentModal}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="comment-modal-content">
+              <div className="inquiry-info">
+                <h4>📋 문의 정보</h4>
+                <p><strong>제목:</strong> {selectedInquiry.subject}</p>
+                <p><strong>문의자:</strong> {selectedInquiry.user.name} ({selectedInquiry.user.email})</p>
+                <p><strong>분류:</strong> {selectedInquiry.category}</p>
+                <p><strong>내용:</strong> {selectedInquiry.content}</p>
+              </div>
+              
+              <div className="comment-form">
+                <label htmlFor="comment-content">답변 내용</label>
+                <textarea
+                  id="comment-content"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="고객님의 문의에 대한 답변을 작성해주세요..."
+                  rows={6}
+                />
+              </div>
+              
+              <div className="comment-modal-actions">
+                <button 
+                  className="cancel-button"
+                  onClick={closeCommentModal}
+                >
+                  취소
+                </button>
+                <button 
+                  className="submit-comment-button"
+                  onClick={handleSubmitComment}
+                >
+                  답변 등록
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -500,6 +500,83 @@
   color: #868e96;
 }
 
+/* 댓글 관련 스타일 */
+.inquiry-status {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.comment-count {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.comments-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #74b9ff;
+}
+
+.comments-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-item {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.comment-item:last-child {
+  margin-bottom: 0;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.comment-author {
+  color: #74b9ff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.comment-date {
+  color: #6c757d;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.comment-content p {
+  margin: 0;
+  color: #555;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
 /* 모바일에서 새로운 필드들 스타일 */
 @media (max-width: 768px) {
   .inquiry-author-info {
@@ -510,5 +587,26 @@
   .inquiry-contact,
   .inquiry-email {
     font-size: 0.8rem;
+  }
+
+  .inquiry-status {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+  }
+
+  .comments-section {
+    padding: 15px;
+    margin-top: 15px;
+  }
+
+  .comment-item {
+    padding: 12px;
+  }
+
+  .comment-header {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
   }
 }

@@ -22,6 +22,22 @@ interface Inquiry {
   user: {
     name: string;
   };
+  comments?: Comment[];
+}
+
+interface Comment {
+  commentId: number;
+  supportId: number;
+  userId: number;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    userId: number;
+    name: string;
+    email: string;
+    role: string;
+  };
 }
 
 interface InquiryHistoryPageProps {
@@ -41,7 +57,7 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
 
   // 로그인 상태 확인
   useEffect(() => {
-    const loginStatus = isLoggedIn();
+    const loginStatus = !!isLoggedIn();
     setUserLoggedIn(loginStatus);
     
     if (loginStatus) {
@@ -53,7 +69,7 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
   const fetchInquiries = async () => {
     try {
       setLoading(true);
-      const response = await apiGet('http://localhost:5000/api/supports');
+      const response = await apiGet('/api/supports');
 
       if (!response) {
         // 토큰 만료로 인한 자동 로그아웃 처리됨
@@ -124,7 +140,7 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
       
       // 백엔드 로그아웃 API 호출
       try {
-        await fetch('http://localhost:5000/api/users/logout', {
+        await fetch('/api/users/logout', {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -261,9 +277,14 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
                         <div className="inquiry-author-info">
                           <span className="inquiry-author">👤 {inquiry.name}</span>
                         </div>
-                        {inquiry.file && (
-                          <span className="file-attached">📎 파일첨부</span>
-                        )}
+                        <div className="inquiry-status">
+                          {inquiry.file && (
+                            <span className="file-attached">📎 파일첨부</span>
+                          )}
+                          {inquiry.comments && inquiry.comments.length > 0 && (
+                            <span className="comment-count">💬 답변 {inquiry.comments.length}개</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -338,6 +359,26 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
                   {selectedInquiry.content}
                 </div>
               </div>
+
+              {/* 댓글 섹션 */}
+              {selectedInquiry.comments && selectedInquiry.comments.length > 0 && (
+                <div className="comments-section">
+                  <h4>💬 관리자 답변</h4>
+                  {selectedInquiry.comments.map((comment) => (
+                    <div key={comment.commentId} className="comment-item">
+                      <div className="comment-header">
+                        <span className="comment-author">👤 {comment.user.name}</span>
+                        <span className="comment-date">
+                          📅 {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="comment-content">
+                        <p>{comment.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

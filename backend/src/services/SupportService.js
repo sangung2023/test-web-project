@@ -92,7 +92,21 @@ export class SupportService {
             user: support.user ? {
               name: support.user.name,
               email: support.user.email
-            } : null
+            } : null,
+            comments: support.comments ? support.comments.map(comment => ({
+              commentId: comment.commentId,
+              supportId: comment.supportId,
+              userId: comment.userId,
+              content: comment.content,
+              createdAt: comment.createdAt,
+              updatedAt: comment.updatedAt,
+              user: comment.user ? {
+                userId: comment.user.userId,
+                name: comment.user.name,
+                email: comment.user.email,
+                role: comment.user.role
+              } : null
+            })) : []
           })),
           pagination: {
             page,
@@ -110,6 +124,75 @@ export class SupportService {
         throw error;
       }
       throw new AppError('문의 목록 조회 중 오류가 발생했습니다.', 500);
+    }
+  }
+
+  // 모든 문의 조회 (관리자용)
+  async getAllSupports(page = 1, limit = 10) {
+    try {
+      console.log('SupportService.getAllSupports 시작:', { page, limit });
+      
+      const offset = (page - 1) * limit;
+      const supports = await this.supportRepository.findAllWithPagination(offset, limit);
+      const totalCount = await this.supportRepository.countAll();
+
+      console.log('조회된 문의 수:', supports.length);
+      console.log('총 문의 수:', totalCount);
+      console.log('문의 데이터:', supports);
+
+      const result = {
+        success: true,
+        data: {
+          supports: supports.map(support => ({
+            supportId: support.supportId,
+            userId: support.userId,
+            name: support.name,
+            mobile: support.mobile,
+            email: support.email,
+            title: support.title,
+            category: this.mapCategoryToKorean(support.category),
+            content: support.content,
+            file: support.file,
+            fileName: support.fileName,
+            originalFileName: support.originalFileName,
+            createdAt: support.createdAt,
+            user: support.user ? {
+              userId: support.user.userId,
+              name: support.user.name,
+              email: support.user.email
+            } : null,
+            comments: support.comments ? support.comments.map(comment => ({
+              commentId: comment.commentId,
+              supportId: comment.supportId,
+              userId: comment.userId,
+              content: comment.content,
+              createdAt: comment.createdAt,
+              updatedAt: comment.updatedAt,
+              user: comment.user ? {
+                userId: comment.user.userId,
+                name: comment.user.name,
+                email: comment.user.email,
+                role: comment.user.role
+              } : null
+            })) : []
+          })),
+          pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(totalCount / limit),
+            totalCount,
+            hasNext: page < Math.ceil(totalCount / limit),
+            hasPrev: page > 1
+          }
+        }
+      };
+      
+      console.log('반환할 결과:', result);
+      return result;
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('관리자 문의 목록 조회 중 오류가 발생했습니다.', 500);
     }
   }
 

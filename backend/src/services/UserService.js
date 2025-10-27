@@ -1,5 +1,5 @@
 import { UserRepository } from '../repositories/UserRepository.js';
-import { CreateUserDTO, UpdateUserDTO, LoginDTO } from '../dtos/UserDTO.js';
+import { CreateUserDTO, UpdateUserDTO, LoginDTO, CreateAdminDTO } from '../dtos/UserDTO.js';
 import { AppError, ValidationError, AuthenticationError, NotFoundError } from '../exceptions/AppError.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -89,7 +89,8 @@ export class UserService {
           userId: user.userId,
           name: user.name,
           email: user.email,
-          birthday: user.birthday
+          birthday: user.birthday,
+          role: user.role
         }
       };
     } catch (error) {
@@ -115,6 +116,7 @@ export class UserService {
           name: user.name,
           email: user.email,
           birthday: user.birthday,
+          role: user.role,
           createdAt: user.createdAt
         }
       };
@@ -150,6 +152,7 @@ export class UserService {
           name: updatedUser.name,
           email: updatedUser.email,
           birthday: updatedUser.birthday,
+          role: updatedUser.role,
           updatedAt: updatedUser.updatedAt
         }
       };
@@ -180,6 +183,52 @@ export class UserService {
         throw error;
       }
       throw new AppError('사용자 삭제 중 오류가 발생했습니다.', 500);
+    }
+  }
+
+  // 관리자 계정 생성
+  async createAdmin(adminData) {
+    try {
+      const createAdminDTO = new CreateAdminDTO(adminData);
+      const validationErrors = createAdminDTO.validate();
+      
+      if (validationErrors.length > 0) {
+        throw new ValidationError(validationErrors.join(', '));
+      }
+
+      // 이메일 중복 확인
+      const existingUser = await this.userRepository.findByEmail(createAdminDTO.email);
+      if (existingUser) {
+        throw new ValidationError('이미 존재하는 이메일입니다.');
+      }
+
+      // 비밀번호 해시화
+      const hashedPassword = await bcrypt.hash(createAdminDTO.password, 12);
+
+      const admin = await this.userRepository.create({
+        name: createAdminDTO.name,
+        email: createAdminDTO.email,
+        password: hashedPassword,
+        birthday: createAdminDTO.birthday,
+        role: 'ADMIN'
+      });
+
+      return {
+        success: true,
+        message: '관리자 계정이 성공적으로 생성되었습니다.',
+        data: {
+          userId: admin.userId,
+          name: admin.name,
+          email: admin.email,
+          birthday: admin.birthday,
+          role: admin.role
+        }
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('관리자 계정 생성 중 오류가 발생했습니다.', 500);
     }
   }
 }

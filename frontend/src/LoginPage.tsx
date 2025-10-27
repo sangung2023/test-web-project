@@ -40,7 +40,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onLogoClick }) =>
       console.log('로그인 시도:', { email: formData.username, password: formData.password });
       
       // 백엔드 API 호출 (쿠키 자동 전송)
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch('/api/users/login', {
         method: 'POST',
         credentials: 'include', // 쿠키 자동 전송
         headers: {

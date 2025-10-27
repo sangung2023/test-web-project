@@ -111,8 +111,8 @@ export const requireAdmin = (req, res, next) => {
     });
   }
 
-  // 관리자 권한 확인 (예: 특정 이메일 도메인 또는 role 필드)
-  const isAdmin = req.user.email.includes('@admin.') || req.user.role === 'admin';
+  // 관리자 권한 확인 (role 필드가 ADMIN인지 확인)
+  const isAdmin = req.user.role === 'ADMIN';
   
   if (!isAdmin) {
     return res.status(403).json({

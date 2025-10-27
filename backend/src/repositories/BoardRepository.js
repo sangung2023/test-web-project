@@ -4,14 +4,16 @@ import prisma from '../config/database.js';
 export class BoardRepository {
   // 게시글 생성
   async create(boardData) {
-    const { userId, title, content, image } = boardData;
+    const { userId, title, content, image, imageName, originalImageName } = boardData;
     
     return await prisma.board.create({
       data: {
         userId,
         title,
         content,
-        image
+        image,
+        imageName,
+        originalImageName
       },
       include: {
         user: {

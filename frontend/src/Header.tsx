@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCookie } from './utils/cookieUtils.js';
+import { getCookie, getAuthHeaders } from './utils/cookieUtils.js';
 import './Header.css';
 
 interface HeaderProps {
@@ -13,6 +13,33 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn = false, onLogout, onLogoClick }) => {
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState<string>('USER');
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchUserRole();
+    }
+  }, [isLoggedIn]);
+
+  const fetchUserRole = async () => {
+    try {
+      const response = await fetch('/api/users/profile', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        }
+      });
+
+      const data = await response.json();
+      if (data.success && data.data.role) {
+        setUserRole(data.data.role);
+      }
+    } catch (error) {
+      console.error('사용자 역할 조회 오류:', error);
+    }
+  };
   
   const handleLinkClick = (section: string) => {
     // 스크롤을 해당 섹션으로 이동
@@ -111,6 +138,9 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
             <>
               <span className="welcome-text">
                 안녕하세요, {getCookie('username')}님!
+                <span className={`header-role-badge ${userRole === 'ADMIN' ? 'admin' : 'user'}`}>
+                  {userRole === 'ADMIN' ? '관리자' : '사용자'}
+                </span>
               </span>
               <button className="nav-link mypage-btn" onClick={handleMyPageClick}>
                 마이페이지

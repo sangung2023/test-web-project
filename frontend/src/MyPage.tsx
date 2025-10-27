@@ -55,7 +55,7 @@ const MyPage: React.FC<MyPageProps> = ({ isLoggedIn, onLogout, onLogoClick }) =>
       const authHeaders = getAuthHeaders();
       console.log('프로필 조회 요청 헤더:', authHeaders);
       
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch('/api/users/profile', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -92,7 +92,7 @@ const MyPage: React.FC<MyPageProps> = ({ isLoggedIn, onLogout, onLogoClick }) =>
 
   const handleUpdateProfile = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch('/api/users/profile', {
         method: 'PUT',
         credentials: 'include',
         headers: {
@@ -122,7 +122,7 @@ const MyPage: React.FC<MyPageProps> = ({ isLoggedIn, onLogout, onLogoClick }) =>
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch('/api/users/profile', {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -208,6 +208,11 @@ const MyPage: React.FC<MyPageProps> = ({ isLoggedIn, onLogout, onLogoClick }) =>
               <>
                 <p><strong>이름:</strong> {userProfile?.name}</p>
                 <p><strong>이메일:</strong> {userProfile?.email}</p>
+                <p><strong>역할:</strong> 
+                  <span className={`role-badge ${userProfile?.role === 'ADMIN' ? 'admin' : 'user'}`}>
+                    {userProfile?.role === 'ADMIN' ? '관리자' : '일반 사용자'}
+                  </span>
+                </p>
                 <p><strong>생년월일:</strong> {userProfile?.birthday ? new Date(userProfile.birthday).toLocaleDateString() : 'N/A'}</p>
                 <p><strong>가입일:</strong> {userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString() : 'N/A'}</p>
               </>

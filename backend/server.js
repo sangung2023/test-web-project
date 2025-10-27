@@ -7,7 +7,9 @@ import { fileURLToPath } from 'url';
 import usersRouter from './src/routes/users.router.js';
 import boardsRouter from './src/routes/boards.router.js';
 import supportsRouter from './src/routes/supports.router.js';
+import supportCommentsRouter from './src/routes/supportComments.router.js';
 import uploadRouter from './src/routes/upload.router.js';
+import filesRouter from './src/routes/files.router.js';
 import { testConnection, disconnectDatabase } from './src/config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,6 +31,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' })); // URL 인코딩
 
 // 정적 파일 서빙 (업로드된 파일)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/images', express.static(path.join(__dirname, 'uploads/images')));
+app.use('/uploads/files', express.static(path.join(__dirname, 'uploads/files')));
 
 // 기본 라우트
 app.get('/', (req, res) => {
@@ -52,7 +56,9 @@ app.get('/api/health', (req, res) => {
 app.use('/api/users', usersRouter);
 app.use('/api/boards', boardsRouter);
 app.use('/api/supports', supportsRouter);
+app.use('/api/support-comments', supportCommentsRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/files', filesRouter);
 
 // 404 에러 핸들러
 app.use('*', (req, res) => {

@@ -5,6 +5,8 @@ export class CreateBoardDTO {
     this.title = data.title;
     this.content = data.content;
     this.image = data.image;
+    this.imageName = data.imageName;
+    this.originalImageName = data.originalImageName;
   }
 
   validate() {
@@ -35,6 +37,8 @@ export class UpdateBoardDTO {
     this.title = data.title;
     this.content = data.content;
     this.image = data.image;
+    this.imageName = data.imageName;
+    this.originalImageName = data.originalImageName;
   }
 
   validate() {

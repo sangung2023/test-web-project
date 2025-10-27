@@ -91,3 +91,53 @@ export class LoginDTO {
     return errors;
   }
 }
+
+export class CreateAdminDTO {
+  constructor(data) {
+    this.name = data.name;
+    this.email = data.email;
+    this.password = data.password;
+    this.repassword = data.repassword;
+    this.birthday = data.birthday;
+    this.adminKey = data.adminKey; // 관리자 계정 생성 키
+  }
+
+  validate() {
+    const errors = [];
+    
+    if (!this.name || this.name.trim().length === 0) {
+      errors.push('이름은 필수입니다.');
+    }
+    
+    if (!this.email || !this.isValidEmail(this.email)) {
+      errors.push('유효한 이메일을 입력해주세요.');
+    }
+    
+    if (!this.password || this.password.length < 6) {
+      errors.push('비밀번호는 6자 이상이어야 합니다.');
+    }
+    
+    if (!this.repassword) {
+      errors.push('비밀번호 확인은 필수입니다.');
+    }
+    
+    if (this.password && this.repassword && this.password !== this.repassword) {
+      errors.push('비밀번호가 일치하지 않습니다.');
+    }
+    
+    if (!this.birthday) {
+      errors.push('생년월일은 필수입니다.');
+    }
+    
+    if (!this.adminKey || this.adminKey !== process.env.ADMIN_CREATION_KEY) {
+      errors.push('관리자 생성 키가 올바르지 않습니다.');
+    }
+    
+    return errors;
+  }
+
+  isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+}

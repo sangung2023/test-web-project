@@ -19,9 +19,20 @@ router.post('/', upload.single('file'), handleMulterError, (req, res) => {
       });
     }
 
-    // 파일 URL 생성 (서버의 정적 파일 경로)
-    const baseURL = process.env.API_BASE_URL || 'http://localhost:3001';
-    const fileUrl = `${baseURL}/uploads/${req.file.filename}`;
+    // 이미지 파일인지 확인
+    const isImage = req.file.mimetype.startsWith('image/');
+    const folderPath = isImage ? 'images' : 'files';
+    
+    // 파일 URL 생성 (새로운 폴더 구조 반영)
+    const baseURL = process.env.API_BASE_URL || 'http://localhost:5000';
+    const fileUrl = `${baseURL}/uploads/${folderPath}/${req.file.filename}`;
+
+    console.log('파일 업로드 완료:', {
+      filename: req.file.filename,
+      mimetype: req.file.mimetype,
+      folderPath: folderPath,
+      url: fileUrl
+    });
 
     res.json({
       success: true,
@@ -51,14 +62,19 @@ router.post('/multiple', upload.array('files', 10), handleMulterError, (req, res
       });
     }
 
-    const baseURL = process.env.API_BASE_URL || 'http://localhost:3001';
-    const uploadedFiles = req.files.map(file => ({
-      fileName: file.filename,
-      originalName: file.originalname,
-      url: `${baseURL}/uploads/${file.filename}`,
-      size: file.size,
-      mimetype: file.mimetype
-    }));
+    const baseURL = process.env.API_BASE_URL || 'http://localhost:5000';
+    const uploadedFiles = req.files.map(file => {
+      const isImage = file.mimetype.startsWith('image/');
+      const folderPath = isImage ? 'images' : 'files';
+      
+      return {
+        fileName: file.filename,
+        originalName: file.originalname,
+        url: `${baseURL}/uploads/${folderPath}/${file.filename}`,
+        size: file.size,
+        mimetype: file.mimetype
+      };
+    });
 
     res.json({
       success: true,
@@ -78,7 +94,11 @@ router.post('/multiple', upload.array('files', 10), handleMulterError, (req, res
 router.delete('/:fileName', (req, res) => {
   try {
     const { fileName } = req.params;
-    const filePath = path.join(__dirname, '../../uploads', fileName);
+    
+    // 이미지 파일인지 확인하여 적절한 폴더에서 삭제
+    const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileName);
+    const folderPath = isImage ? 'images' : 'files';
+    const filePath = path.join(__dirname, '../../uploads', folderPath, fileName);
 
     // 파일 존재 확인
     if (!fs.existsSync(filePath)) {
@@ -90,6 +110,8 @@ router.delete('/:fileName', (req, res) => {
 
     // 파일 삭제
     fs.unlinkSync(filePath);
+
+    console.log(`파일 삭제 완료: ${folderPath}/${fileName}`);
 
     res.json({
       success: true,

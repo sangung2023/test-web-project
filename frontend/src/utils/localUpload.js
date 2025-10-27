@@ -11,7 +11,7 @@ export const uploadFileToLocal = async (file, endpoint = '/api/upload') => {
     formData.append('file', file);
 
     // API 엔드포인트 URL 구성
-    const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const uploadURL = `${baseURL}${endpoint}`;
 
     console.log('로컬 서버에 파일 업로드 시작...', {
@@ -36,8 +36,13 @@ export const uploadFileToLocal = async (file, endpoint = '/api/upload') => {
     const result = await response.json();
     console.log('파일 업로드 성공:', result);
 
+    // 이미지 URL의 포트를 항상 5000번으로 변환
+    let fixedUrl = result.url;
+    if (fixedUrl && fixedUrl.startsWith('http://localhost:3001/')) {
+      fixedUrl = fixedUrl.replace('http://localhost:3001/', 'http://localhost:5000/');
+    }
     return {
-      url: result.url,
+      url: fixedUrl,
       fileName: result.fileName,
       originalName: result.originalName,
       size: file.size,
@@ -73,7 +78,7 @@ export const uploadMultipleFilesToLocal = async (files, endpoint = '/api/upload'
  */
 export const deleteFileFromLocal = async (fileName) => {
   try {
-    const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const deleteURL = `${baseURL}/api/upload/${encodeURIComponent(fileName)}`;
 
     const response = await fetch(deleteURL, {

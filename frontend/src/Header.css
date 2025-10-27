@@ -250,6 +250,31 @@
   }
 }
 
+/* Header Role Badge Styles */
+.header-role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.header-role-badge.admin {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  box-shadow: 0 1px 4px rgba(255, 107, 107, 0.3);
+}
+
+.header-role-badge.user {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  box-shadow: 0 1px 4px rgba(116, 185, 255, 0.3);
+}
+
 @media (max-width: 360px) {
   .logo h1 {
     font-size: 1.3rem;

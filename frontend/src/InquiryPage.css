@@ -261,3 +261,422 @@
   }
   
 }
+
+/* 관리자 패널 스타일 */
+.admin-panel {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  margin: 40px auto;
+  max-width: 800px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  border: none;
+  min-height: 400px;
+}
+
+.admin-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-panel-header h2 {
+  color: #333;
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.refresh-button {
+  background: linear-gradient(135deg, #a8c8ec, #8bb3e8);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refresh-button:hover {
+  background: linear-gradient(135deg, #8bb3e8, #a8c8ec);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(168, 200, 236, 0.2);
+}
+
+.admin-inquiries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.admin-inquiry-item {
+  background: #fafbff;
+  border-radius: 12px;
+  padding: 15px;
+  border-left: 4px solid #d4c5f9;
+  transition: all 0.3s ease;
+}
+
+.admin-inquiry-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(212, 197, 249, 0.15);
+}
+
+.admin-inquiry-item .inquiry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.admin-inquiry-item .inquiry-info h3 {
+  color: #333;
+  font-size: 1.1rem;
+  margin: 0 0 8px 0;
+}
+
+.inquiry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.inquiry-meta span {
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.status-badge {
+  background: linear-gradient(135deg, #f4e4bc, #e8c5a0) !important;
+  color: #8b6f47 !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.admin-inquiry-item .inquiry-content {
+  margin-bottom: 12px;
+}
+
+.admin-inquiry-item .inquiry-content p {
+  color: #555;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}
+
+.inquiry-file {
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.reply-button {
+  background: linear-gradient(135deg, #a8c8ec, #8bb3e8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reply-button:hover {
+  background: linear-gradient(135deg, #8bb3e8, #a8c8ec);
+  transform: translateY(-1px);
+}
+
+.status-button {
+  background: linear-gradient(135deg, #a8d8a8, #8bc88b);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.status-button:hover {
+  background: linear-gradient(135deg, #8bc88b, #a8d8a8);
+  transform: translateY(-1px);
+}
+
+.empty-inquiries {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* 댓글 섹션 스타일 */
+.comments-section {
+  margin-top: 15px;
+  padding: 15px;
+  background: #fafbff;
+  border-radius: 8px;
+  border-left: 4px solid #a8c8ec;
+}
+
+.comments-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.comment-item {
+  background: white;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.comment-item:last-child {
+  margin-bottom: 0;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.comment-author {
+  color: #8bb3e8;
+  font-weight: 600;
+}
+
+.comment-date {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.comment-content p {
+  margin: 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* 댓글 작성 모달 스타일 */
+.comment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.comment-modal {
+  background: white;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.comment-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.comment-modal-header h3 {
+  margin: 0;
+  color: #333;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+.comment-modal-content {
+  padding: 25px;
+}
+
+.inquiry-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.inquiry-info h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.inquiry-info p {
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.comment-form {
+  margin-bottom: 20px;
+}
+
+.comment-form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 600;
+}
+
+.comment-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.comment-form textarea:focus {
+  outline: none;
+  border-color: #74b9ff;
+  box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.1);
+}
+
+.comment-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.submit-comment-button {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-comment-button:hover {
+  background: linear-gradient(135deg, #0984e3, #74b9ff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(116, 185, 255, 0.3);
+}
+
+.cancel-button {
+  background: #f8f9fa;
+  color: #666;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+/* 관리자 패널 반응형 디자인 */
+@media (max-width: 768px) {
+  .admin-panel {
+    padding: 30px 25px;
+    margin: 20px auto;
+    max-width: 90%;
+  }
+  
+  .admin-panel-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .admin-inquiry-item .inquiry-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .inquiry-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .admin-actions {
+    flex-direction: column;
+  }
+  
+  .comment-modal {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .comment-modal-header {
+    padding: 15px 20px;
+  }
+  
+  .comment-modal-content {
+    padding: 20px;
+  }
+  
+  .comment-modal-actions {
+    flex-direction: column;
+  }
+  
+  .submit-comment-button,
+  .cancel-button {
+    width: 100%;
+  }
+}

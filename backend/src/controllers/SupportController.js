@@ -75,6 +75,32 @@ export class SupportController {
     }
   };
 
+  // 모든 문의 조회 (관리자용)
+  getAllSupports = async (req, res) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      console.log('관리자 문의 목록 조회 요청:', { page, limit });
+
+      const result = await this.supportService.getAllSupports(page, limit);
+      res.json(result);
+    } catch (error) {
+      console.error('관리자 문의 목록 조회 오류:', error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: '관리자 문의 목록 조회 중 오류가 발생했습니다.'
+        });
+      }
+    }
+  };
+
   // 문의 상세 조회
   getSupportById = async (req, res) => {
     try {

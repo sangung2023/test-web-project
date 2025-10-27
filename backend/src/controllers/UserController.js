@@ -85,6 +85,21 @@ export class UserController {
     }
   };
 
+  // 관리자 계정 생성
+  createAdmin = async (req, res) => {
+    try {
+      console.log('📥 관리자 계정 생성 요청 받음:', req.body);
+      
+      const result = await this.userService.createAdmin(req.body);
+      
+      console.log('✅ 관리자 계정 생성 성공:', result);
+      res.status(201).json(result);
+    } catch (error) {
+      console.error('❌ 관리자 계정 생성 오류:', error);
+      this.handleError(error, res);
+    }
+  };
+
   // 에러 처리
   handleError = (error, res) => {
     console.error('UserController Error:', error);

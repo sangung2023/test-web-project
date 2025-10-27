@@ -1,6 +1,6 @@
 import express from 'express';
 import { SupportController } from '../controllers/SupportController.js';
-import { authenticateToken } from '../middlewares/auth.js';
+import { authenticateToken, requireAdmin } from '../middlewares/auth.js';
 import { upload, handleMulterError } from '../middlewares/upload.js';
 
 const router = express.Router();
@@ -11,6 +11,9 @@ router.post('/', authenticateToken, supportController.createSupport);
 
 // 문의 목록 조회 (인증 필요)
 router.get('/', authenticateToken, supportController.getSupports);
+
+// 모든 문의 조회 (관리자만)
+router.get('/admin/all', authenticateToken, requireAdmin, supportController.getAllSupports);
 
 // 문의 상세 조회 (인증 필요)
 router.get('/:supportId', authenticateToken, supportController.getSupportById);

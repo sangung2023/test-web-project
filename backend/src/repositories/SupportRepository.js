@@ -49,6 +49,19 @@ export class SupportRepository {
             name: true,
             email: true
           }
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                userId: true,
+                name: true,
+                email: true,
+                role: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
         }
       }
     });
@@ -61,6 +74,47 @@ export class SupportRepository {
   async count(userId = null) {
     const where = userId ? { userId } : {};
     return await prisma.support.count({ where });
+  }
+
+  // 모든 문의 조회 (페이지네이션, 관리자용)
+  async findAllWithPagination(offset = 0, limit = 10) {
+    console.log('SupportRepository.findAllWithPagination 호출:', { offset, limit });
+    
+    const result = await prisma.support.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            name: true,
+            email: true
+          }
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                userId: true,
+                name: true,
+                email: true,
+                role: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
+        }
+      }
+    });
+    
+    console.log('SupportRepository.findAllWithPagination 결과:', result);
+    return result;
+  }
+
+  // 모든 문의 총 개수 (관리자용)
+  async countAll() {
+    return await prisma.support.count();
   }
 
   // ID로 문의 조회

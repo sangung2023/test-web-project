@@ -1,11 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header.tsx';
 import { getAuthHeaders, isLoggedIn, clearAllAuthCookies } from './utils/cookieUtils.js';
 import { apiGet, apiPost, apiPut, apiDelete } from './utils/apiUtils.js';
-import { uploadFileToFirebase, validateFileSize, validateFileType } from './utils/firebaseUpload.js';
+import { uploadFileToLocal } from './utils/localUpload.js';
 import { API_ENDPOINTS } from './config/api.js';
 import './BoardPage.css';
+
+// 파일 크기 검증 함수 (최대 크기 바이트 단위)
+function validateFileSize(file: File, maxSize: number) {
+  return file.size <= maxSize;
+}
 
 interface BoardPost {
   boardId: number;
@@ -57,37 +63,34 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
 
   // 이미지 URL을 적절히 처리하는 함수
   const getImageUrl = (url: string) => {
-    console.log('🔍 원본 URL:', url);
-    console.log('🔍 URL 타입:', url.startsWith('data:image/') ? 'data:image' : '일반 URL');
-    
+    if (!url) return '';
+    // 로컬 업로드 이미지라면 프록시 사용하지 않음
+    if (
+      url.startsWith('/uploads/') ||
+      url.startsWith('http://localhost:5000/uploads/') ||
+      url.startsWith('http://localhost:3001/uploads/')
+    ) {
+      return url;
+    }
     // data:image URL인 경우 유효성 검증 후 반환
     if (url.startsWith('data:image/')) {
       if (isValidDataImageUrl(url)) {
-        console.log('✅ 유효한 data:image URL 직접 사용');
         return url;
       } else {
-        console.warn('⚠️ 유효하지 않은 data:image URL:', url);
-        // 유효하지 않은 data:image URL도 일단 시도해보기
         return url;
       }
     }
-    
     // 이미 프록시 URL인 경우 그대로 반환
     if (url.includes('images.weserv.nl') || url.includes('cors-anywhere.herokuapp.com')) {
-      console.log('✅ 프록시 URL 직접 사용');
       return url;
     }
-    
     // 구글 이미지 URL인 경우 특별 처리
     if (url.includes('googleusercontent.com') || url.includes('googleapis.com')) {
       const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
-      console.log('✅ 구글 이미지 프록시 URL 생성:', proxyUrl);
       return proxyUrl;
     }
-    
     // 기타 URL들도 프록시를 통해 처리
     const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
-    console.log('✅ 일반 URL 프록시 URL 생성:', proxyUrl);
     return proxyUrl;
   };
 
@@ -218,7 +221,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
       
       // 로그인 상태 재확인
       const loginStatus = isLoggedIn();
-      setUserLoggedIn(loginStatus);
+  setUserLoggedIn(!!loginStatus);
       console.log('🔍 게시글 작성 후 로그인 상태 재확인:', loginStatus);
       
       // 로그인 상태가 유지되지 않았다면 경고
@@ -279,7 +282,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     // 로그인 상태 확인
     const checkLoginStatus = () => {
       const loginStatus = isLoggedIn();
-      setUserLoggedIn(loginStatus);
+  setUserLoggedIn(!!loginStatus);
       console.log('🔍 게시판 페이지 로그인 상태:', loginStatus);
     };
     
@@ -352,18 +355,14 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
-      // 파일 크기 검증 (50MB)
-      if (!validateFileSize(file, 50 * 1024 * 1024)) {
-        setError('파일 크기가 너무 큽니다. (최대 50MB)');
+      // 파일 크기 검증 (100MB)
+      if (!validateFileSize(file, 100 * 1024 * 1024)) {
+        setError('파일 크기가 너무 큽니다. (최대 100MB)');
         return;
       }
       
-      // 파일 타입 검증 (이미지만 허용)
-      const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-      if (!imageTypes.includes(file.type)) {
-        setError('이미지 파일만 업로드 가능합니다. (jpeg, jpg, png, gif)');
-        return;
-      }
+      // 파일 타입 검증 (모든 파일 타입 허용)
+      // 모든 파일 타입을 허용하므로 검증 생략
       
       if (isEdit) {
         setEditPost({ ...editPost, image: file });
@@ -402,7 +401,7 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
       if (editPost.image) {
         try {
           console.log('Firebase에 수정 이미지 업로드 시작...');
-          uploadedImageInfo = await uploadFileToFirebase(editPost.image, 'board-images');
+          uploadedImageInfo = await uploadFileToLocal(editPost.image, '/api/upload');
           console.log('수정 이미지 업로드 성공:', uploadedImageInfo);
         } catch (uploadError) {
           console.error('수정 이미지 업로드 실패:', uploadError);
@@ -673,15 +672,15 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
                           onLoad={() => {
                             console.log('✅ 게시글 목록 이미지 로드 성공:', {
                               originalUrl: post.image,
-                              processedUrl: getImageUrl(post.image),
-                              isDataImage: isDataImageUrl(post.image)
+                              processedUrl: getImageUrl(post.image ?? ''),
+                              isDataImage: isDataImageUrl(post.image ?? '')
                             });
                           }}
                           onError={(e) => {
                             console.error('❌ 게시글 목록 이미지 로드 실패:', {
                               originalUrl: post.image,
-                              processedUrl: getImageUrl(post.image),
-                              isDataImage: isDataImageUrl(post.image),
+                              processedUrl: getImageUrl(post.image ?? ''),
+                              isDataImage: isDataImageUrl(post.image ?? ''),
                               error: e
                             });
                           }}
@@ -729,15 +728,15 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
                     onLoad={() => {
                       console.log('✅ 상세보기 이미지 로드 성공:', {
                         originalUrl: selectedPost.image,
-                        processedUrl: getImageUrl(selectedPost.image),
-                        isDataImage: isDataImageUrl(selectedPost.image)
+                        processedUrl: getImageUrl(selectedPost.image ?? ''),
+                        isDataImage: isDataImageUrl(selectedPost.image ?? '')
                       });
                     }}
                     onError={(e) => {
                       console.error('❌ 상세보기 이미지 로드 실패:', {
                         originalUrl: selectedPost.image,
-                        processedUrl: getImageUrl(selectedPost.image),
-                        isDataImage: isDataImageUrl(selectedPost.image),
+                        processedUrl: getImageUrl(selectedPost.image ?? ''),
+                        isDataImage: isDataImageUrl(selectedPost.image ?? ''),
                         error: e
                       });
                     }}

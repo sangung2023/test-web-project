@@ -61,7 +61,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick })
       console.log('📤 전송할 데이터:', requestBody);
       
       // 백엔드 API 호출
-      const response = await fetch('http://localhost:5000/api/users/signup', {
+      const response = await fetch('/api/users/signup', {
         method: 'POST',
         credentials: 'include', // 쿠키 자동 전송
         headers: {

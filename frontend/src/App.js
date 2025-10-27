@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import MainPage from './MainPage.tsx';
 import LoginPage from './LoginPage.tsx';
 import SignupPage from './SignupPage.tsx';
+import AdminSignupPage from './AdminSignupPage.tsx';
 import MyPage from './MyPage.tsx';
 import BoardPage from './BoardPage.tsx';
 import InquiryPage from './InquiryPage.tsx';
@@ -151,6 +152,12 @@ function App() {
                 onSignupSuccess={handleSignupSuccess}
                 onLogoClick={handleLogoClick}
               />
+            } 
+          />
+          <Route 
+            path="/admin-signup" 
+            element={
+              <AdminSignupPage />
             } 
           />
           <Route 

@@ -4,14 +4,15 @@ import prisma from '../config/database.js';
 export class UserRepository {
   // 사용자 생성
   async create(userData) {
-    const { name, email, password, birthday } = userData;
+    const { name, email, password, birthday, role } = userData;
     
     return await prisma.user.create({
       data: {
         name,
         email,
         password,
-        birthday: new Date(birthday)
+        birthday: new Date(birthday),
+        role: role || 'USER'
       }
     });
   }
@@ -50,6 +51,7 @@ export class UserRepository {
         name: true,
         email: true,
         birthday: true,
+        role: true,
         createdAt: true,
         updatedAt: true
       }
@@ -65,6 +67,7 @@ export class UserRepository {
         name: true,
         email: true,
         birthday: true,
+        role: true,
         createdAt: true,
         updatedAt: true
       }
