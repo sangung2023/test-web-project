@@ -17,6 +17,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onLogoClick }) =>
     password: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // 로고 이미지 URL 처리 (개발/배포 환경 대응)
+  const getLogoUrl = () => {
+    const logoPath = '/uploads/images/logo.png';
+    if (typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' || 
+      window.location.hostname === '127.0.0.1' ||
+      window.location.port === '3000'
+    )) {
+      return `http://localhost:5000${logoPath}`;
+    }
+    return logoPath;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -109,9 +122,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onLogoClick }) =>
         <div className="login-card">
           <div className="login-header">
             <img 
-              src="https://via.placeholder.com/60x60/FF6B6B/FFFFFF?text=🐉" 
+              src={getLogoUrl()} 
               alt="드래곤 로고" 
               className="login-logo"
+              style={{ border: 'none', outline: 'none', padding: 0, margin: 0, boxShadow: 'none', background: 'transparent' }}
+              onError={(e) => {
+                console.error('로고 이미지 로드 실패:', e);
+              }}
             />
             <h1>One Step 로그인</h1>
             <p>MCP를 활용한 Suricata Rule 생성 AI</p>

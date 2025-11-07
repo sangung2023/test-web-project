@@ -22,17 +22,35 @@ const PORT = process.env.PORT || 5000;
 
 // 미들웨어 설정
 app.use(cors({
-  origin: 'http://localhost:3000', // 프론트엔드 URL
-  credentials: true // 쿠키 전송 허용
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // 프론트엔드 URL
+  credentials: true, // 쿠키 전송 허용
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(cookieParser()); // 쿠키 파싱 미들웨어
 app.use(express.json({ limit: '50mb' })); // JSON 크기 제한 증가
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // URL 인코딩 크기 제한 증가
 
+// 정적 파일 서빙을 위한 CORS 미들웨어
+const staticCors = (req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    process.env.FRONTEND_URL
+  ].filter(Boolean);
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  next();
+};
+
 // 정적 파일 서빙 (업로드된 파일)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/uploads/images', express.static(path.join(__dirname, 'uploads/images')));
-app.use('/uploads/files', express.static(path.join(__dirname, 'uploads/files')));
+app.use('/uploads', staticCors, express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/images', staticCors, express.static(path.join(__dirname, 'uploads/images')));
+app.use('/uploads/files', staticCors, express.static(path.join(__dirname, 'uploads/files')));
 
 // 기본 라우트
 app.get('/', (req, res) => {

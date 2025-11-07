@@ -89,4 +89,11 @@ export class UserRepository {
     });
   }
 
+  // 관리자 계정 찾기
+  async findAdmin() {
+    return await prisma.user.findFirst({
+      where: { role: 'ADMIN' }
+    });
+  }
+
 }

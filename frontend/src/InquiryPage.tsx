@@ -326,7 +326,7 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
         {userRole !== 'ADMIN' && (
           <div className="inquiry-tabs">
             <button 
-              className="tab-button active"
+              className="tab-button"
               onClick={() => navigate('/inquiry')}
             >
               고객문의
@@ -364,7 +364,6 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
                             <span>👤 {inquiry.user.name}</span>
                             <span>📧 {inquiry.user.email}</span>
                             <span>📅 {new Date(inquiry.createdAt).toLocaleDateString()}</span>
-                            <span className="status-badge">⏳ 대기중</span>
                           </div>
                         </div>
                       </div>
@@ -406,9 +405,6 @@ const InquiryPage: React.FC<InquiryPageProps> = ({ isLoggedIn: propIsLoggedIn, o
                           onClick={() => openCommentModal(inquiry)}
                         >
                           💬 답변하기
-                        </button>
-                        <button className="status-button">
-                          ✅ 처리완료
                         </button>
                       </div>
                     </div>

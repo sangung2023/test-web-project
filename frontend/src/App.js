@@ -58,7 +58,7 @@ function App() {
     
     try {
       // 백엔드 로그아웃 API 호출
-      const response = await fetch('http://localhost:5000/api/users/logout', {
+      const response = await fetch('/api/users/logout', {
         method: 'POST',
         credentials: 'include',
         headers: {

@@ -29,12 +29,22 @@
 }
 
 .signup-logo {
-  width: 60px;
-  height: 60px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  display: block;
+  padding: 0 !important;
+  box-sizing: border-box;
+  vertical-align: middle;
+  background: transparent !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .signup-header h1 {

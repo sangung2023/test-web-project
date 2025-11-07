@@ -1,7 +1,7 @@
 /* 고객문의 페이지 스타일 */
 .inquiry-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   padding: 20px 0;
 }
 
@@ -28,12 +28,20 @@
   opacity: 0.9;
 }
 
+.inquiry-form-container {
+  max-width: 1200px;
+  min-height: 600px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
 .inquiry-content {
   background: white;
   border-radius: 0 0 20px 20px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.1);
   overflow: hidden;
-  margin-top: 0;
+  margin: 0 !important;
+  padding: 0;
 }
 
 .inquiry-tabs {
@@ -69,17 +77,15 @@
   border-bottom-color: #667eea;
 }
 
-.inquiry-form-container {
-  display: flex;
-  min-height: 600px;
-}
-
 .inquiry-form {
-  flex: 1;
+  width: 100%;
+  max-width: 800px;
   padding: 40px;
   display: flex;
   flex-direction: column;
   gap: 25px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .form-group {
@@ -241,10 +247,6 @@
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-  .inquiry-form-container {
-    flex-direction: column;
-  }
-  
   .inquiry-form {
     padding: 20px;
   }
@@ -331,6 +333,9 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 12px;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8f9fa;
 }
 
 .admin-inquiry-item .inquiry-info h3 {
@@ -363,6 +368,9 @@
 
 .admin-inquiry-item .inquiry-content {
   margin-bottom: 12px;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8f9fa;
 }
 
 .admin-inquiry-item .inquiry-content p {

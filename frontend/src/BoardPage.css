@@ -1,7 +1,7 @@
 /* 자유게시판 페이지 스타일 */
 .board-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   padding: 20px 0;
 }
 

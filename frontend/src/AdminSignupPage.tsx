@@ -104,7 +104,13 @@ const AdminSignupPage: React.FC = () => {
         alert('관리자 계정이 성공적으로 생성되었습니다!');
         navigate('/login');
       } else {
-        setErrors([result.message || '관리자 계정 생성에 실패했습니다.']);
+        const errorMessage = result.message || '관리자 계정 생성에 실패했습니다.';
+        // 관리자 계정이 이미 존재하는 경우 특별한 안내
+        if (errorMessage.includes('이미 존재합니다') || errorMessage.includes('하나만 생성')) {
+          setErrors([errorMessage + ' 이미 생성된 관리자 계정으로 로그인해주세요.']);
+        } else {
+          setErrors([errorMessage]);
+        }
       }
     } catch (error) {
       console.error('관리자 계정 생성 오류:', error);

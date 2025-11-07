@@ -11,7 +11,7 @@ export const uploadFileToLocal = async (file, endpoint = '/api/upload') => {
     formData.append('file', file);
 
     // API 엔드포인트 URL 구성
-  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const baseURL = process.env.REACT_APP_API_URL || '';
     const uploadURL = `${baseURL}${endpoint}`;
 
     console.log('로컬 서버에 파일 업로드 시작...', {
@@ -36,11 +36,26 @@ export const uploadFileToLocal = async (file, endpoint = '/api/upload') => {
     const result = await response.json();
     console.log('파일 업로드 성공:', result);
 
-    // 이미지 URL의 포트를 항상 5000번으로 변환
+    // 백엔드에서 이미 상대 경로(/uploads/...)로 반환되므로 그대로 사용
+    // localhost URL이 있어도 상대 경로로 변환
     let fixedUrl = result.url;
-    if (fixedUrl && fixedUrl.startsWith('http://localhost:3001/')) {
-      fixedUrl = fixedUrl.replace('http://localhost:3001/', 'http://localhost:5000/');
+    if (fixedUrl && (fixedUrl.startsWith('http://localhost:3001/') || fixedUrl.startsWith('http://localhost:5000/'))) {
+      // localhost URL을 상대 경로로 변환
+      const urlObj = new URL(fixedUrl);
+      fixedUrl = urlObj.pathname;
     }
+    
+    // 상대 경로가 아닌 경우 상대 경로로 변환 시도
+    if (fixedUrl && !fixedUrl.startsWith('/')) {
+      // 절대 URL이면 경로만 추출
+      try {
+        const urlObj = new URL(fixedUrl);
+        fixedUrl = urlObj.pathname;
+      } catch (e) {
+        // URL 파싱 실패 시 그대로 사용
+      }
+    }
+    
     return {
       url: fixedUrl,
       fileName: result.fileName,
@@ -78,7 +93,7 @@ export const uploadMultipleFilesToLocal = async (files, endpoint = '/api/upload'
  */
 export const deleteFileFromLocal = async (fileName) => {
   try {
-  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const baseURL = process.env.REACT_APP_API_URL || '';
     const deleteURL = `${baseURL}/api/upload/${encodeURIComponent(fileName)}`;
 
     const response = await fetch(deleteURL, {

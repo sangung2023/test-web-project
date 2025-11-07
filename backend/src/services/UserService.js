@@ -186,9 +186,15 @@ export class UserService {
     }
   }
 
-  // 관리자 계정 생성
+  // 관리자 계정 생성 (하나만 생성 가능)
   async createAdmin(adminData) {
     try {
+      // 이미 관리자 계정이 존재하는지 확인
+      const existingAdmin = await this.userRepository.findAdmin();
+      if (existingAdmin) {
+        throw new ValidationError('관리자 계정은 이미 존재합니다. 관리자 계정은 하나만 생성할 수 있습니다.');
+      }
+
       const createAdminDTO = new CreateAdminDTO(adminData);
       const validationErrors = createAdminDTO.validate();
       

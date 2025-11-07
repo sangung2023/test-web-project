@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Header from './Header.tsx';
 import bannerImage from './images/banner.png';
 import './MainPage.css';
@@ -14,6 +14,7 @@ interface MainPageProps {
 
 const MainPage: React.FC<MainPageProps> = ({ isLoggedIn = false, onLogout, onLogoClick }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const teamMembers = [
     {
       name: '임성빈',
@@ -36,6 +37,19 @@ const MainPage: React.FC<MainPageProps> = ({ isLoggedIn = false, onLogout, onLog
       image: 'https://via.placeholder.com/150x150/BD10E0/FFFFFF?text=정수진'
     }
   ];
+
+  // URL 해시를 확인하여 해당 섹션으로 스크롤
+  useEffect(() => {
+    if (location.hash) {
+      const sectionId = location.hash.substring(1); // # 제거
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [location.hash]);
 
   return (
     <div className="main-page">

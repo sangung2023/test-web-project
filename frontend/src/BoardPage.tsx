@@ -6,6 +6,7 @@ import { getAuthHeaders, isLoggedIn, clearAllAuthCookies } from './utils/cookieU
 import { apiGet, apiPost, apiPut, apiDelete } from './utils/apiUtils.js';
 import { uploadFileToLocal } from './utils/localUpload.js';
 import { API_ENDPOINTS } from './config/api.js';
+import API_BASE_URL from './config/api.js';
 import './BoardPage.css';
 
 // 파일 크기 검증 함수 (최대 크기 바이트 단위)
@@ -61,16 +62,51 @@ const BoardPage = ({ isLoggedIn: propIsLoggedIn, onLogout, onLogoClick }: BoardP
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // 이미지 URL을 적절히 처리하는 함수
+  // 이미지 URL을 적절히 처리하는 함수 (Apache 배포 환경 고려)
   const getImageUrl = (url: string) => {
     if (!url) return '';
-    // 로컬 업로드 이미지라면 프록시 사용하지 않음
-    if (
-      url.startsWith('/uploads/') ||
-      url.startsWith('http://localhost:5000/uploads/') ||
-      url.startsWith('http://localhost:3001/uploads/')
-    ) {
+    
+    // 완전한 URL인 경우 (http:// 또는 https://로 시작)
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      // localhost URL을 상대 경로로 변환 (개발 환경에서도 일관성 유지)
+      if (url.includes('localhost:5000') || url.includes('localhost:3001')) {
+        try {
+          const urlObj = new URL(url);
+          return urlObj.pathname; // 상대 경로로 변환하여 아래 로직에서 처리
+        } catch (e) {
+          return url; // 파싱 실패 시 원본 반환
+        }
+      }
+      // 외부 URL은 그대로 반환
       return url;
+    }
+    
+    // 개발 환경 감지: localhost 또는 포트 3000
+    const isLocalhost = typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' || 
+      window.location.hostname === '127.0.0.1' ||
+      window.location.port === '3000'
+    );
+    
+    // 상대 경로로 시작하는 경우 (/uploads/)
+    if (url.startsWith('/uploads/')) {
+      // 개발 환경: 백엔드 서버 직접 사용
+      if (isLocalhost) {
+        return `http://localhost:5000${url}`;
+      }
+      // 배포 환경: 상대 경로 그대로 사용
+      // Apache가 /uploads/ 경로를 백엔드로 프록시하거나 직접 서빙
+      return url;
+    }
+    
+    // /api/uploads/로 시작하는 경우 (일반적으로 발생하지 않지만 처리)
+    if (url.startsWith('/api/uploads/')) {
+      // /api를 제거하고 /uploads/만 사용
+      const path = url.replace('/api', '');
+      if (isLocalhost) {
+        return `http://localhost:5000${path}`;
+      }
+      return path;
     }
     // data:image URL인 경우 유효성 검증 후 반환
     if (url.startsWith('data:image/')) {

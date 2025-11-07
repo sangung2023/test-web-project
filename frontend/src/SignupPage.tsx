@@ -18,6 +18,19 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick })
     name: '',
     birthDate: ''
   });
+  
+  // 로고 이미지 URL 처리 (개발/배포 환경 대응)
+  const getLogoUrl = () => {
+    const logoPath = '/uploads/images/logo.png';
+    if (typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' || 
+      window.location.hostname === '127.0.0.1' ||
+      window.location.port === '3000'
+    )) {
+      return `http://localhost:5000${logoPath}`;
+    }
+    return logoPath;
+  };
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,9 +126,13 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onLogoClick })
         <div className="signup-card">
           <div className="signup-header">
             <img 
-              src="https://via.placeholder.com/60x60/FF6B6B/FFFFFF?text=🐉" 
+              src={getLogoUrl()} 
               alt="드래곤 로고" 
               className="signup-logo"
+              style={{ border: 'none', outline: 'none', padding: 0, margin: 0, boxShadow: 'none', background: 'transparent' }}
+              onError={(e) => {
+                console.error('로고 이미지 로드 실패:', e);
+              }}
             />
             <h1>회원가입</h1>
           </div>

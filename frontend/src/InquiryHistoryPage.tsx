@@ -202,7 +202,7 @@ const InquiryHistoryPage: React.FC<InquiryHistoryPageProps> = ({ isLoggedIn: pro
             고객문의
           </button>
           <button 
-            className="tab-button active"
+            className="tab-button"
             onClick={() => navigate('/inquiry-history')}
           >
             문의내역

@@ -23,9 +23,9 @@ router.post('/', upload.single('file'), handleMulterError, (req, res) => {
     const isImage = req.file.mimetype.startsWith('image/');
     const folderPath = isImage ? 'images' : 'files';
     
-    // 파일 URL 생성 (새로운 폴더 구조 반영)
-    const baseURL = process.env.API_BASE_URL || 'http://localhost:5000';
-    const fileUrl = `${baseURL}/uploads/${folderPath}/${req.file.filename}`;
+    // 파일 URL 생성 - Apache 배포를 위해 항상 상대 경로 사용
+    // 프론트엔드에서 환경에 따라 적절히 처리
+    const fileUrl = `/uploads/${folderPath}/${req.file.filename}`;
 
     console.log('파일 업로드 완료:', {
       filename: req.file.filename,
@@ -62,15 +62,17 @@ router.post('/multiple', upload.array('files', 10), handleMulterError, (req, res
       });
     }
 
-    const baseURL = process.env.API_BASE_URL || 'http://localhost:5000';
     const uploadedFiles = req.files.map(file => {
       const isImage = file.mimetype.startsWith('image/');
       const folderPath = isImage ? 'images' : 'files';
       
+      // Apache 배포를 위해 항상 상대 경로 사용
+      const fileUrl = `/uploads/${folderPath}/${file.filename}`;
+      
       return {
         fileName: file.filename,
         originalName: file.originalname,
-        url: `${baseURL}/uploads/${folderPath}/${file.filename}`,
+        url: fileUrl,
         size: file.size,
         mimetype: file.mimetype
       };

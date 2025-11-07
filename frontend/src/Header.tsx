@@ -14,6 +14,21 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn = false, onLogout, onLogoClick }) => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>('USER');
+  
+  // 로고 이미지 URL 처리 (개발/배포 환경 대응)
+  const getLogoUrl = () => {
+    const logoPath = '/uploads/images/logo.png';
+    // 개발 환경: localhost이면 백엔드 서버 직접 사용
+    if (typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' || 
+      window.location.hostname === '127.0.0.1' ||
+      window.location.port === '3000'
+    )) {
+      return `http://localhost:5000${logoPath}`;
+    }
+    // 배포 환경: 상대 경로 사용 (Apache가 프록시 처리)
+    return logoPath;
+  };
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -42,10 +57,25 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
   };
   
   const handleLinkClick = (section: string) => {
-    // 스크롤을 해당 섹션으로 이동
-    const element = document.getElementById(section);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    // 현재 경로 확인
+    const currentPath = window.location.pathname;
+    
+    // 메인페이지가 아니면 메인페이지로 이동 후 스크롤
+    if (currentPath !== '/') {
+      navigate(`/#${section}`);
+      // 메인페이지로 이동 후 스크롤을 위해 약간의 지연
+      setTimeout(() => {
+        const element = document.getElementById(section);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      // 이미 메인페이지에 있으면 바로 스크롤
+      const element = document.getElementById(section);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
@@ -83,9 +113,14 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
       <div className="header-container">
         <div className="logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
           <img 
-            src="https://via.placeholder.com/40x40/FF6B6B/FFFFFF?text=🐉" 
+            src={getLogoUrl()} 
             alt="드래곤 로고" 
             className="logo-image"
+            style={{ border: 'none', outline: 'none', padding: 0, margin: 0, boxShadow: 'none', background: 'transparent' }}
+            onError={(e) => {
+              // 이미지 로드 실패 시 기본 이미지로 대체
+              console.error('로고 이미지 로드 실패:', e);
+            }}
           />
           <h1>One Step</h1>
         </div>
@@ -137,10 +172,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick, onSignupClick, isLoggedIn
           {isLoggedIn ? (
             <>
               <span className="welcome-text">
-                안녕하세요, {getCookie('username')}님!
-                <span className={`header-role-badge ${userRole === 'ADMIN' ? 'admin' : 'user'}`}>
-                  {userRole === 'ADMIN' ? '관리자' : '사용자'}
-                </span>
+                {getCookie('username')}님
               </span>
               <button className="nav-link mypage-btn" onClick={handleMyPageClick}>
                 마이페이지
